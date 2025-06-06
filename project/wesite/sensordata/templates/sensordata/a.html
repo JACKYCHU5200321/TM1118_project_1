@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Chart Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .schedule-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--pfont);
+            background-color: var(--cellc);
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--space-cadet);
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(var(--pfont), 0.1);
+        }
+
+        tr:hover {
+            background-color: rgba(var(--rainbow-indigo), 0.2);
+        }
+
+        .time-column {
+            width: 120px;
+            font-weight: bold;
+        }
+
+        .event {
+            background-color: rgba(var(--blue-sapphire), 0.2);
+            border-left: 4px solid var(--blue-sapphire);
+        }
+
+        .past-event {
+            background-color: rgba(var(--raisin-black), 0.2);
+            color: rgba(var(--pfont), 0.6);
+        }
+
+        .current-event {
+            background-color: rgba(var(--cetacean-blue), 0.2);
+            border-left: 4px solid var(--rainbow-indigo);
+        }
+
+        @media (max-width: 600px) {
+
+            th,
+            td {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .time-column {
+                width: 80px;
+            }
+        }
+
+        :root {
+            --cetacean-blue: #000F2B;
+            --space-cadet: #1B264D;
+            --rainbow-indigo: #263B61;
+            --blue-sapphire: #13576E;
+            --raisin-black: #232323;
+            --pfont: #DAE1F1;
+            --cellc: #263B61;
+        }
+
+        body {
+            background-color: #131925;
+            color: var(--pfont);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: var(--pfont);
+            text-align: center;
+        }
+
+        #line-chart {
+            width: 80%;
+            margin: 20px auto;
+            background-color: var(--space-cadet);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="chart-container">
+        <h1>Sample Line Chart</h1>
+        <canvas id="myLineChart"></canvas>
+    </div>
+
+    <div class="schedule-container">
+        <h1>Daily Schedule</h1>
+        <table id="scheduleTable">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Event</th>
+                    <th>Location</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Schedule items will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Sample data - replace with your own values
+        const dataValues = {{ records_temp|safe  }};
+        const dataLabels = {{ records_time|safe  }};
+
+        // Get the canvas element
+        const ctx = document.getElementById('myLineChart').getContext('2d');
+
+        // Create the chart
+        const myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dataLabels,
+                datasets: [{
+                    label: 'Sample Data',
+                    data: dataValues,
+                    color: 'rgba(218, 225, 241, 1)',
+                    backgroundColor: 'rgba(158, 240, 158, 0.2)',
+                    borderColor: 'rgba(158, 240, 158, 1)',
+                    borderWidth: 2,
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: 'rgba(218, 225, 241, 1)'
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Line Chart Example',
+                        color: 'rgba(218, 225, 241, 1)',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    },
+                }
+            }
+        });
+
+        // Sample schedule data - replace with your own data
+        const scheduleData = {{ events_table | safe }};
+
+        // Function to format time
+        function formatTime(dateTime) {
+            const options = { hour: '2-digit', minute: '2-digit' };
+            return new Date(dateTime).toLocaleTimeString([], options);
+        }
+
+        // Function to determine if event is in past, current, or future
+        function getEventStatus(start, end) {
+            const now = new Date();
+            const startTime = new Date(start);
+            const endTime = new Date(end);
+
+            if (now < startTime) return "future";
+            if (now >= startTime && now <= endTime) return "current";
+            return "past";
+        }
+
+        // Function to populate the schedule table
+        function populateSchedule() {
+            const tbody = document.querySelector('#scheduleTable tbody');
+            tbody.innerHTML = '';
+
+            // Sort schedule by start time
+            scheduleData.sort((a, b) => new Date(a.start) - new Date(b.start));
+
+            scheduleData.forEach(item => {
+                const row = document.createElement('tr');
+                const status = getEventStatus(item.start, item.end);
+
+                // Add class based on event status
+                if (status === "past") row.classList.add('past-event');
+                if (status === "current") row.classList.add('current-event');
+                if (status === "future") row.classList.add('event');
+
+                row.innerHTML = `
+                    <td class="time-column">${formatTime(item.start)} - ${formatTime(item.end)}</td>
+                    <td>${item.event}</td>
+                    <td>${item.location}</td>
+                    <td>${item.description}</td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+        // Initialize the schedule when page loads
+        document.addEventListener('DOMContentLoaded', populateSchedule);
+    </script>
+</body>
+
+</html>
