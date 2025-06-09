@@ -121,13 +121,66 @@
 </head>
 
 <body>
+    {% include 'navbar.html' %}
+
+    {% for chart in charts %}
     <div class="chart-container">
-        <h1>Sample Line Chart</h1>
-        <canvas id="myLineChart"></canvas>
+        <h1> {{ chart.title|safe  }} </h1>
+        <canvas id="linechart_{{ chart.id|safe  }}"></canvas>
     </div>
+    <script>
+        {
+            const dataValues = {{ chart.values|safe  }};
+            const dataLabels = {{ chart.labels|safe  }};
+
+            // Get the canvas element
+            const ctx = document.getElementById('linechart_{{ chart.id|safe  }}').getContext('2d');
+
+            // Create the chart
+            const myLineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dataLabels,
+                    datasets: [{
+                        label: "{{ chart.value_name|safe  }}",
+                        data: dataValues,
+                        color: 'rgba(218, 225, 241, 1)',
+                        backgroundColor: 'rgba(158, 240, 158, 0.2)',
+                        borderColor: 'rgba(158, 240, 158, 1)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: 'rgba(218, 225, 241, 1)'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            // text: "{{ chart.title|safe  }}",
+                            color: 'rgba(218, 225, 241, 1)',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        },
+                    }
+                }
+            });
+        };
+
+    </script>
+    {% endfor %}
 
     <div class="schedule-container">
-        <h1>Daily Schedule</h1>
+        <h1>Event Schedule</h1>
         <table id="scheduleTable">
             <thead>
                 <tr>
@@ -143,53 +196,7 @@
         </table>
     </div>
 
-    <script>
-        // Sample data - replace with your own values
-        const dataValues = {{ records_temp|safe  }};
-        const dataLabels = {{ records_time|safe  }};
-
-        // Get the canvas element
-        const ctx = document.getElementById('myLineChart').getContext('2d');
-
-        // Create the chart
-        const myLineChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: dataLabels,
-                datasets: [{
-                    label: 'Sample Data',
-                    data: dataValues,
-                    color: 'rgba(218, 225, 241, 1)',
-                    backgroundColor: 'rgba(158, 240, 158, 0.2)',
-                    borderColor: 'rgba(158, 240, 158, 1)',
-                    borderWidth: 2,
-                    tension: 0.1,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                        labels: {
-                            color: 'rgba(218, 225, 241, 1)'
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Line Chart Example',
-                        color: 'rgba(218, 225, 241, 1)',
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    },
-                }
-            }
-        });
-
+    <script> 
         // Sample schedule data - replace with your own data
         const scheduleData = {{ events_table | safe }};
 
@@ -241,6 +248,8 @@
         // Initialize the schedule when page loads
         document.addEventListener('DOMContentLoaded', populateSchedule);
     </script>
+
+    
 </body>
 
 </html>

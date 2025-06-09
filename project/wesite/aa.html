@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group 11 Query Page</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cetacean-blue: #000F2B;
+            --space-cadet: #1B264D;
+            --rainbow-indigo: #263B61;
+            --blue-sapphire: #13576E;
+            --raisin-black: #232323;
+            --pfont: #DAE1F1;
+            --cellc: #263B61;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--cetacean-blue) 0%, var(--space-cadet) 100%);
+            color: var(--pfont);
+            min-height: 100vh;
+            padding: 1rem;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(38, 59, 97, 0.2), transparent 70%);
+            opacity: 0.3;
+            z-index: -1;
+            animation: pulseBg 10s ease-in-out infinite;
+        }
+
+        .nav-container {
+            position: sticky;
+            top: 0;
+            background: rgba(27, 38, 77, 0.6);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 12px var(--raisin-black);
+            z-index: 100;
+            border-bottom: 1px solid rgba(218, 225, 241, 0.1);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 90px;
+        }
+
+        .logo-link {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            height: 60px;
+            width: 60px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid transparent;
+            background: linear-gradient(45deg, var(--rainbow-indigo), var(--blue-sapphire));
+            padding: 2px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: rotate(5deg);
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--rainbow-indigo), var(--blue-sapphire));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: var(--pfont);
+            letter-spacing: -0.07em;
+        }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .hamburger:hover {
+            transform: scale(1.15);
+        }
+
+        .hamburger span {
+            width: 32px;
+            height: 4px;
+            background: var(--pfont);
+            margin: 3px 0;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu {
+            display: none;
+            position: absolute;
+            top: 90px;
+            right: 2rem;
+            background: rgba(27, 38, 77, 0.9);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px var(--raisin-black);
+            z-index: 90;
+            border: 1px solid rgba(218, 225, 241, 0.1);
+        }
+
+        .nav-menu.active {
+            display: block;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 0.8rem 1.5rem;
+            color: var(--pfont);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item:hover {
+            background: rgba(38, 59, 97, 0.3);
+            color: var(--pfont);
+            transform: translateX(6px);
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--rainbow-indigo), var(--blue-sapphire));
+            opacity: 0.2;
+            transition: left 0.3s ease;
+        }
+
+        .menu-item:hover::before {
+            left: 0;
+        }
+
+        .query-section {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 2.5rem;
+            background: rgba(27, 38, 77, 0.7);
+            border-radius: 24px;
+            box-shadow: 0 12px 40px var(--raisin-black);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(218, 225, 241, 0.1);
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .query-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--rainbow-indigo), var(--blue-sapphire));
+            opacity: 0.1;
+            z-index: -1;
+            animation: gradientShift 8s ease infinite;
+        }
+
+        .query-section:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 16px 48px var(--raisin-black), 0 0 20px rgba(38, 59, 97, 0.3);
+        }
+
+        .query-section h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--rainbow-indigo), var(--blue-sapphire));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: glowText 3s ease-in-out infinite;
+        }
+
+        .query-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .form-group label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--pfont);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 0.8rem 1.2rem;
+            border: 2px solid rgba(218, 225, 241, 0.2);
+            border-radius: 12px;
+            background: rgba(38, 59, 97, 0.5);
+            color: var(--pfont);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--blue-sapphire);
+            box-shadow: 0 0 10px rgba(19, 87, 110, 0.5);
+            outline: none;
+            background: rgba(38, 59, 97, 0.7);
+        }
+
+        .form-group input:hover,
+        .form-group textarea:hover {
+            border-color: var(--rainbow-indigo);
+        }
+
+        .submit-button {
+            padding: 1rem 2rem;
+            background: linear-gradient(45deg, var(--rainbow-indigo), var(--blue-sapphire));
+            border: none;
+            border-radius: 12px;
+            color: var(--pfont);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(19, 87, 110, 0.5);
+        }
+
+        .submit-button:hover {
+            background: linear-gradient(45deg, var(--blue-sapphire), var(--rainbow-indigo));
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(19, 87, 110, 0.7), 0 0 25px rgba(38, 59, 97, 0.5);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes gradientShift {
+            0% { transform: translateX(-20%) translateY(-20%); }
+            50% { transform: translateX(20%) translateY(20%); }
+            100% { transform: translateX(-20%) translateY(-20%); }
+        }
+
+        @keyframes glowText {
+            0% { text-shadow: 0 0 5px var(--rainbow-indigo), 0 0 10px var(--blue-sapphire); }
+            50% { text-shadow: 0 0 10px var(--rainbow-indigo), 0 0 20px var(--blue-sapphire); }
+            100% { text-shadow: 0 0 5px var(--rainbow-indigo), 0 0 10px var(--blue-sapphire); }
+        }
+
+        @keyframes pulseBg {
+            0% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.05); }
+            100% { opacity: 0.3; transform: scale(1); }
+        }
+
+        @media (min-width: 768px) {
+            .hamburger {
+                display: none;
+            }
+
+            .nav-menu {
+                display: flex !important;
+                position: static;
+                background: none;
+                box-shadow: none;
+                padding: 0;
+                gap: 1.5rem;
+            }
+
+            .menu-item {
+                padding: 0.6rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .query-section {
+                padding: 2rem;
+            }
+
+            .query-section h1 {
+                font-size: 2rem;
+            }
+
+            .form-group input,
+            .form-group textarea {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .submit-button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-container">
+        <div class="nav-content">
+            <a href="/homepage/" class="logo-link">
+                <div class="logo-container">
+                    <img 
+                        src="https://i.imghippo.com/files/NrB2683lRw.png" 
+                        alt="Group 11 Logo" 
+                        class="logo"
+                    />
+                    <span class="logo-text">Group 11</span>
+                </div>
+            </a>
+            <div class="hamburger" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="nav-menu" id="nav-menu">
+                <a href="/query/" class="menu-item">Query</a>
+                <a href="/list/" class="menu-item">Record List</a>
+                <a href="/admin/" class="menu-item">Admin</a>
+            </div>
+        </div>
+    </nav>
+    <section class="query-section">
+        <h1>Submit Your Query</h1>
+        <form class="query-form" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="query-title">Query Title</label>
+                <input type="text" id="query-title" name="title" placeholder="Enter query title" required>
+            </div>
+            <div class="form-group">
+                <label for="query-description">Description</label>
+                <textarea id="query-description" name="description" rows="5" placeholder="Describe your query" required></textarea>
+            </div>
+            <button type="submit" class="submit-button">Submit</button>
+        </form>
+    </section>
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('nav-menu');
+            menu.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

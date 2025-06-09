@@ -1,0 +1,363 @@
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+    
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .nav-container {
+            position: sticky;
+            top: 0;
+            background: rgba(27, 38, 77, 0.6);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 12px var(--raisin-black);
+            z-index: 100;
+            border-bottom: 1px solid rgba(218, 225, 241, 0.1);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 90px;
+        }
+
+        .logo-link {
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            height: 60px;
+            width: 60px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid transparent;
+            background: linear-gradient(45deg, var(--rainbow-indigo), var(--blue-sapphire));
+            padding: 2px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: rotate(5deg);
+        }
+
+        .logo-text {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--rainbow-indigo), var(--blue-sapphire));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: var(--pfont);
+            letter-spacing: -0.07em;
+        }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .hamburger:hover {
+            transform: scale(1.15);
+        }
+
+        .hamburger span {
+            width: 32px;
+            height: 4px;
+            background: var(--pfont);
+            margin: 3px 0;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-menu {
+            display: none;
+            position: absolute;
+            top: 90px;
+            right: 2rem;
+            background: rgba(27, 38, 77, 0.9);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px var(--raisin-black);
+            z-index: 90;
+            border: 1px solid rgba(218, 225, 241, 0.1);
+        }
+
+        .nav-menu.active {
+            display: block;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 0.8rem 1.5rem;
+            color: var(--pfont);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item:hover {
+            background: rgba(38, 59, 97, 0.3);
+            color: var(--pfont);
+            transform: translateX(6px);
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--rainbow-indigo), var(--blue-sapphire));
+            opacity: 0.2;
+            transition: left 0.3s ease;
+        }
+
+        .menu-item:hover::before {
+            left: 0;
+        }
+
+        .hero-section {
+            max-width: 1400px;
+            margin: 3rem auto;
+            padding: 2.5rem 2rem;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .description-card {
+            background: rgba(27, 38, 77, 0.7);
+            border-radius: 24px;
+            padding: 3.5rem;
+            box-shadow: 0 12px 40px var(--raisin-black);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(218, 225, 241, 0.1);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .description-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--rainbow-indigo), var(--blue-sapphire));
+            opacity: 0.1;
+            z-index: -1;
+            animation: gradientShift 8s ease infinite;
+        }
+
+        .description-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 16px 48px var(--raisin-black);
+        }
+
+        .description-card h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--rainbow-indigo), var(--blue-sapphire));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: var(--pfont);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .description-card p {
+            font-size: 1.2rem;
+            color: var(--pfont);
+            line-height: 1.9;
+            margin-bottom: 1.5rem;
+        }
+
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2.5rem;
+        }
+
+        .member-card {
+            background: var(--cellc);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(218, 225, 241, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .member-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 10px 30px var(--raisin-black), 0 0 20px rgba(38, 59, 97, 0.3);
+        }
+
+        .member-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--rainbow-indigo), var(--blue-sapphire));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: -1;
+        }
+
+        .member-card:hover::before {
+            opacity: 0.15;
+        }
+
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--rainbow-indigo), var(--blue-sapphire));
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--pfont);
+            font-weight: 700;
+            border: 2px solid rgba(218, 225, 241, 0.1);
+        }
+
+        .member-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--pfont);
+            margin-bottom: 0.5rem;
+        }
+
+        .member-card p {
+            font-size: 1.1rem;
+            color: var(--pfont);
+            margin: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes gradientShift {
+            0% { transform: translateX(-20%) translateY(-20%); }
+            50% { transform: translateX(20%) translateY(20%); }
+            100% { transform: translateX(-20%) translateY(-20%); }
+        }
+
+        @media (min-width: 768px) {
+            .hamburger {
+                display: none;
+            }
+
+            .nav-menu {
+                display: flex !important;
+                position: static;
+                background: none;
+                box-shadow: none;
+                padding: 0;
+                gap: 1.5rem;
+            }
+
+            .menu-item {
+                padding: 0.6rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .description-card {
+                padding: 2.5rem;
+            }
+
+            .description-card h2 {
+                font-size: 2rem;
+            }
+
+            .member-card {
+                padding: 1.5rem;
+            }
+
+            .member-card h3 {
+                font-size: 1.3rem;
+            }
+
+            .member-avatar {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--cetacean-blue) 0%, var(--space-cadet) 100%);
+            color: var(--pfont);
+            min-height: 100vh;
+            padding: 1rem;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+</style>
+
+
+<nav class="nav-container">
+    <div class="nav-content">
+        <a href="/homepage/" class="logo-link">
+            <div class="logo-container">
+                <img 
+                    src="https://i.imghippo.com/files/NrB2683lRw.png" 
+                    alt="Group 11 Logo" 
+                    class="logo"
+                />
+                <span class="logo-text">Group 11</span>
+            </div>
+        </a>
+        <div class="hamburger" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-menu" id="nav-menu">
+            <a href="/query/" class="menu-item">Query</a>
+            <a href="/list/" class="menu-item">Record List</a>
+            <a href="/admin/" class="menu-item _
+
+">Admin</a>
+        </div>
+    </div>
+</nav>
+<script>
+    function toggleMenu() {
+        const menu = document.getElementById('nav-menu');
+        menu.classList.toggle('active');
+    }
+</script>

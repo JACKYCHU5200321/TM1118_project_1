@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Chart Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Arial:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cetacean-blue: #000F2B;
+            --space-cadet: #1B264D;
+            --rainbow-indigo: #263B61;
+            --blue-sapphire: #13576E;
+            --raisin-black: #232323;
+            --pfont: #DAE1F1;
+            --cellc: #263B61;
+        }
+
+         body {
+            font-family: Arial, sans-serif;
+            background-color: #131925;
+            color: var(--pfont);
+            min-height: 100vh;
+            padding: 20px;
+            padding-top: 84px;
+        }
+
+
+        .chart-container {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        .schedule-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--pfont);
+            background-color: var(--cellc);
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--space-cadet);
+            position: sticky;
+            top: 64px;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(var(--pfont), 0.1);
+        }
+
+        tr:hover {
+            background-color: rgba(var(--rainbow-indigo), 0.2);
+        }
+
+        .time-column {
+            width: 120px;
+            font-weight: bold;
+        }
+
+        .event {
+            background-color: rgba(var(--blue-sapphire), 0.2);
+            border-left: 4px solid var(--blue-sapphire);
+        }
+
+        .past-event {
+            background-color: rgba(var(--raisin-black), 0.2);
+            color: rgba(var(--pfont), 0.6);
+        }
+
+        .current-event {
+            background-color: rgba(var(--cetacean-blue), 0.2);
+            border-left: 4px solid var(--rainbow-indigo);
+        }
+
+        h1 {
+            color: var(--pfont);
+            text-align: center;
+        }
+
+        #line-chart {
+            width: 80%;
+            margin: 20px auto;
+            background-color: var(--space-cadet);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            .hamburger {
+                display: none;
+            }
+
+            .nav-menu {
+                display: flex !important;
+                position: static;
+                background: none;
+                box-shadow: none;
+                padding: 0;
+                gap: 1.5rem;
+            }
+
+            .menu-item {
+                padding: 0.6rem 1.5rem;
+            }
+        }
+
+         @media (max-width: 600px) {
+            th,
+            td {
+                padding: 8px;
+                font-size: 14px;
+            }
+            .time-column {
+                width: 80px;
+            }
+        } 
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <div class="schedule-container">
+        <h1>Raw Node Data</h1>
+        <table id="scheduleTable">
+            <thead>
+                <tr>
+                    <th>Record time</th>
+                    <th>Node ID</th>
+                    <th>Location</th>
+                    <th>Temperature</th>
+                    <th>Humidity</th>
+                    <th>Light level</th>
+                    <th>Sound level</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.date_created }}</td>
+                    <td>{{ record.node_id }}</td>
+                    <td>{{ record.loc }}</td>
+                    <td>{{ record.temp }}</td>
+                    <td>{{ record.hum }}</td>
+                    <td>{{ record.light }}</td>
+                    <td>{{ record.snd }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

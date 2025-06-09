@@ -2,7 +2,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('sensordata/index/', views.index),
-    path('sensordata/index2/', views.index2),
     path('main/', views.page_timeevent),
+    path('list/', views.page_listrecords),
+    path('query/', views.page_query),
+    path('homepage/', views.home),
+    path('<str:any>/', views.page_not_found),
+    
 ]

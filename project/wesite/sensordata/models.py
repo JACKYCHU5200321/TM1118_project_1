@@ -8,7 +8,7 @@ class SensorRecord(models.Model):
     hum = models.DecimalField(max_digits=3, decimal_places=1)
     light = models.IntegerField()
     snd = models.DecimalField(max_digits=5, decimal_places=1)
-    date_created = models.DateTimeField()
+    date_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return 'SensorRecord #{}'.format(self.node_id)
