@@ -206,7 +206,6 @@
                     $('#scheduleTable tbody').empty();
                     data.reverse();
                     $.each(data, function(index, record) {
-                        console.log(record.fields)
                         $('#scheduleTable tbody').append(`
                             <tr>
                                 <td>${record.fields.date_created}</td>

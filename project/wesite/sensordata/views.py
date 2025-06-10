@@ -13,14 +13,19 @@ def recordasjson(request):
     data = serializers.serialize('json', events) #Translating Django models into JSON formats
     return JsonResponse(data, safe=False)
 
+
+datajsonPosval = ['temp', 'hum', 'snd', 'light']
+
+def datajsonSerRes(ty):
+    records_temp  = SensorRecord.objects.all()
+    data = serializers.serialize('json', records_temp, fields=('date_created', 'loc', ty))
+    return JsonResponse(data, safe=False)
+
 def datajson(request, ty):
-    records = SensorRecord.objects.all()
-    if ty == "temp":
-        records_temp  = valuesMap2jsArray(records, lambda x: x.temp)
-        data = serializers.serialize('json', records_temp)
-        return JsonResponse(data, safe=False)
-        
-    pass
+    if ty in datajsonPosval:
+        return datajsonSerRes(ty)
+    return page_not_found(request, "")
+    
 
 
 def page_not_found(request, any):
