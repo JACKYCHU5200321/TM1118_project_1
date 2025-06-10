@@ -5,6 +5,14 @@ from . import sensor_mqtt
 from .models import SensorRecord, VenueEvent
 from .forms import QueryForm
 from django.http import HttpResponseNotFound
+from django.http import JsonResponse
+from django.core import serializers
+
+def recordasjson(request):
+    events = SensorRecord.objects.all()
+    data = serializers.serialize('json', events) #Translating Django models into JSON formats
+    return JsonResponse(data, safe=False)
+
 
 def page_not_found(request, any):
     # Custom 404 page context
@@ -16,7 +24,6 @@ def page_not_found(request, any):
 
 def home(request):
     return render(request, 'sensordata/homepage.html')
-
 
 class Linechart:
     def __init__(self, id, labels, values, value_name, title):
