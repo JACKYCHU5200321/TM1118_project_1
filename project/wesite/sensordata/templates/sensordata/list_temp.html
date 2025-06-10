@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature data list</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Reset and base styles */
+        :root {
+            --cetacean-blue: #000F2B;
+            --space-cadet: #1B264D;
+            --rainbow-indigo: #263B61;
+            --blue-sapphire: #13576E;
+            --raisin-black: #232323;
+            --pfont: #DAE1F1;
+            --cellc: #263B61;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        body {
+            background-color: #131925;
+            color: var(--pfont);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Content styles */
+        .chart-container {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        .schedule-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--pfont);
+            background-color: var(--cellc);
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--space-cadet);
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(var(--pfont), 0.1);
+        }
+
+        tr:hover {
+            background-color: rgba(var(--rainbow-indigo), 0.2);
+        }
+
+        .time-column {
+            width: 120px;
+            font-weight: bold;
+        }
+
+        .event {
+            background-color: rgba(var(--blue-sapphire), 0.2);
+            border-left: 4px solid var(--blue-sapphire);
+        }
+
+        .past-event {
+            background-color: rgba(var(--raisin-black), 0.2);
+            color: rgba(var(--pfont), 0.6);
+        }
+
+        .current-event {
+            background-color: rgba(var(--cetacean-blue), 0.2);
+            border-left: 4px solid var(--rainbow-indigo);
+        }
+
+        h1 {
+            color: var(--pfont);
+            text-align: center;
+        }
+
+        #line-chart {
+            width: 80%;
+            margin: 20px auto;
+            background-color: var(--space-cadet);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        /* Media queries */
+        @media (max-width: 600px) {
+            th,
+            td {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .time-column {
+                width: 80px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+
+    {% for chart in charts %}
+    <div class="chart-container">
+        <h1> {{ chart.title|safe  }} </h1>
+        <canvas id="linechart_{{ chart.id|safe  }}"></canvas>
+    </div>
+    <script>
+        {
+            const dataValues = {{ chart.values|safe  }};
+            const dataLabels = {{ chart.labels|safe  }};
+
+            // Get the canvas element
+            const ctx = document.getElementById('linechart_{{ chart.id|safe  }}').getContext('2d');
+
+            // Create the chart
+            const myLineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dataLabels,
+                    datasets: [{
+                        label: "{{ chart.value_name|safe }}",
+                        data: dataValues,
+                        color: 'rgba(218, 225, 241, 1)',
+                        backgroundColor: 'rgba(158, 240, 158, 0.2)',
+                        borderColor: 'rgba(158, 240, 158, 1)',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: 'rgba(218, 225, 241, 1)'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            // text: "{{ chart.title|safe  }}",
+                            color: 'rgba(218, 225, 241, 1)',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        },
+                    }
+                }
+            });
+        };
+    </script>
+    {% endfor %}
+    <script>
+        function drawLineChart(chart_id, values, labels, value_name) {
+            // Get the canvas element            
+            const ctx = document.getElementById(chart_id).getContext('2d');
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            const existingChart = Chart.getChart(ctx.canvas);
+            if (existingChart) existingChart.destroy();
+
+            const myLineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: value_name,
+                        data: values,
+                        color: 'rgba(218, 225, 241, 1)',
+                        backgroundColor: 'rgba(158, 240, 158, 0.2)',
+                        borderColor: 'rgba(158, 240, 158, 1)',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: 'rgba(218, 225, 241, 1)'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            // text: "{{ chart.title|safe  }}",
+                            color: 'rgba(218, 225, 241, 1)',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        },
+                    }
+                }
+            });
+        };
+    </script>
+</body>
+</html>

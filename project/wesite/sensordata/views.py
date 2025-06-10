@@ -13,6 +13,15 @@ def recordasjson(request):
     data = serializers.serialize('json', events) #Translating Django models into JSON formats
     return JsonResponse(data, safe=False)
 
+def datajson(request, ty):
+    records = SensorRecord.objects.all()
+    if ty == "temp":
+        records_temp  = valuesMap2jsArray(records, lambda x: x.temp)
+        data = serializers.serialize('json', records_temp)
+        return JsonResponse(data, safe=False)
+        
+    pass
+
 
 def page_not_found(request, any):
     # Custom 404 page context
@@ -42,6 +51,22 @@ def page_listrecords(request):
     records = SensorRecord.objects.order_by("-date_created").all()
     context = {'records': records}
     return render(request, 'sensordata/recordlist.html', context)
+
+def page_temperature(request):
+    records = SensorRecord.objects.all()
+    loc = list({record.loc for record in records})
+    charts = []
+    for l in loc:
+        sub_rec = SensorRecord.objects.filter(loc=l).all()
+        records_temp  = valuesMap2jsArray(sub_rec, lambda x: x.temp)
+        records_time = str([datetime.strftime(record.date_created, "%m/%d %H:%M") for record in sub_rec])
+        charts.append(
+            Linechart("temp%s" % l, records_time, records_temp, "temperature", l)
+        )
+        # print("%s: %d" % (l, len(a)))
+    context = {'charts': charts}
+    return render(request, 'sensordata/list_temp.html', context)
+    
 
 
 def context_recordNevent(start, end, room):
@@ -87,7 +112,7 @@ def context_recordNevent(start, end, room):
                 event.title, event.loc, event.description
             ) for event in between_events]).replace("'", '')
 
-    return {'records_temp': records_temp, 'records_humi': records_humi, 'records_time': records_time, 'events_table': events_table, 'charts': charts}
+    return {'events_table': events_table, 'charts': charts}
 
 
 def page_query(request):
