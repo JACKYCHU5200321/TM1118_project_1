@@ -39,13 +39,22 @@ def page_not_found(request, any):
 def home(request):
     return render(request, 'sensordata/homepage.html')
 
+
 class Linechart:
-    def __init__(self, id, labels, values, value_name, title):
+    def __init__(self, id, labels, values, value_name, title, node_id):
         self.id = id
         self.labels = labels
         self.values = values
         self.value_name = value_name
         self.title = title
+        self.node_id = node_id
+
+class ChartGroup:
+    def __init__(self, name):
+        self.name = name
+        self.group = []
+    def add(self, chart):
+        self.group.append(chart)
 
 
 def valuesMap2jsArray(values, f):
@@ -57,19 +66,36 @@ def page_listrecords(request):
     context = {'records': records}
     return render(request, 'sensordata/recordlist.html', context)
 
-def page_temperature(request):
-    records = SensorRecord.objects.all()
-    loc = list({record.loc for record in records})
+# statchart_title = ['temperature', 'Humidity', 'Sound level', 'Light Level']
+# statchart_color = ['158, 240, 158', '54, 162, 235', '255, 206, 86', '75, 192, 192']
+
+statchart_theme = {
+    "temp" : ('Temperature', '158, 240, 158', "temperature(°C)", lambda x: x.temp),
+    "hum"  : (   'Humidity',  '54, 162, 235', "humdity(%)",      lambda x: x.hum),
+    "snd"  : ('Sound level',  '255, 206, 86', "sound level(dB)", lambda x: x.snd),
+    "light": ('Light Level',  '75, 192, 192', "light level(%)",  lambda x: x.light),
+}
+
+def page_statchart(request, ty):
+    # records = SensorRecord.objects.all()
+
+    if ty not in statchart_theme.keys():
+        return
+
+    loc = list({record.loc for record in SensorRecord.objects.all()})
+    title, color, label, func = statchart_theme[ty]
     charts = []
+
     for l in loc:
-        sub_rec = SensorRecord.objects.filter(loc=l).all()
-        records_temp  = valuesMap2jsArray(sub_rec, lambda x: x.temp)
-        records_time = str([datetime.strftime(record.date_created, "%m/%d %H:%M") for record in sub_rec])
-        charts.append(
-            Linechart("temp%s" % l, records_time, records_temp, "temperature", l)
-        )
-        # print("%s: %d" % (l, len(a)))
-    context = {'charts': charts}
+        g_temp = ChartGroup(l)
+        nodes = [x["node_id"] for x in SensorRecord.objects.filter(loc=l).values("node_id").distinct()]
+        for node in nodes:
+            records = SensorRecord.objects.filter(loc=l, node_id=node).all()
+            records_temp  = valuesMap2jsArray(records, func)
+            records_time = str([datetime.strftime(record.date_created, "%m/%d %H:%M") for record in records])
+            g_temp.add(Linechart("%s_%s_temp"  % (node, l), records_time, records_temp,  label, "%s %s" % (l, title), node))
+        charts.append(g_temp)
+    context = {'chart_color': color, 'charts': charts}
     return render(request, 'sensordata/list_temp.html', context)
     
 
@@ -80,35 +106,32 @@ def context_recordNevent(start, end, room):
     records = SensorRecord.objects.filter(loc=room).all()
     events = VenueEvent.objects.filter(loc=room).all() 
 
-    # all unique location
-    # loc = list({record.loc for record in records})
+    nodes = [x["node_id"] for x in records.values("node_id").distinct()]
+    g_temp, g_hum, g_snd, g_light = ChartGroup("Temperature"), ChartGroup("Humidity"), ChartGroup("Sound Level"), ChartGroup("Light Level")
+    
+    
+    for node in nodes:
+        records = SensorRecord.objects.filter(loc=room, node_id=node).all()
+        between_records = [record for record in records if
+            record.date_created >= uq_tstart and
+            record.date_created <= uq_tend]
+        records_temp  = valuesMap2jsArray(records, lambda x: x.temp)
+        records_humi  = valuesMap2jsArray(records, lambda x: x.hum)
+        records_snd   = valuesMap2jsArray(records, lambda x: x.snd)
+        records_light = valuesMap2jsArray(records, lambda x: x.light)
 
-    # get in between records and events
-    between_records = [record for record in records if
-        record.date_created >= uq_tstart and
-        record.date_created <= uq_tend]
+        records_time = str([datetime.strftime(record.date_created, "%m/%d %H:%M") for record in between_records])
+
+        g_temp.add(Linechart("%s_temp"  % node, records_time, records_temp,  "temperature(°C)", "%s Temperature" % room, node))
+        g_hum.add(Linechart("%s_humi"  % node, records_time, records_humi,  "humdity(%)", "%s Humidity" % room, node))
+        g_snd.add(Linechart("%s_snd"   % node, records_time, records_snd,   "sound level(dB)", "%s Sound Level" % room, node))
+        g_light.add(Linechart("%s_light" % node, records_time, records_light, "light level(%)", "%s Light Level" % room, node))
+    
+    charts = [g_temp, g_hum, g_snd, g_light]
+    
     between_events = [event for event in events if
         event.begin >= uq_tstart and
         event.end <= uq_tend]
-
-    # records_temp = str([str(record.temp) for record in between_records]).replace("'", '"')
-    # records_humi = str([str(record.hum) for record in between_records]).replace("'", '"')
-    # records_snd = str([str(record.snd) for record in between_records]).replace("'", '"')
-    # records_light = str([str(record.light) for record in between_records]).replace("'", '"')
-
-    records_temp  = valuesMap2jsArray(records, lambda x: x.temp)
-    records_humi  = valuesMap2jsArray(records, lambda x: x.hum)
-    records_snd   = valuesMap2jsArray(records, lambda x: x.snd)
-    records_light = valuesMap2jsArray(records, lambda x: x.light)
-
-    records_time = str([datetime.strftime(record.date_created, "%m/%d %H:%M") for record in between_records])
-
-    charts = [
-        Linechart("temp", records_time, records_temp, "temperature", "room ___"),
-        Linechart("humi", records_time, records_humi, "humdity", "room ___"),
-        Linechart("snd", records_time, records_snd, "sound level", "room ___"),
-        Linechart("light", records_time, records_light, "light level", "room ___")
-    ]
 
     events_table = str(["{start: \"%s\", end: \"%s\", event: \"%s\", location: \"%s\", description: \"%s\"}" %
             (

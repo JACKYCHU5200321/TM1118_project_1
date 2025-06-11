@@ -125,58 +125,102 @@
 <body>
     {% include 'navbar.html' %}
 
-    {% for chart in charts %}
-    <div class="chart-container">
-        <h1> {{ chart.title|safe  }} </h1>
-        <canvas id="linechart_{{ chart.id|safe  }}"></canvas>
-    </div>
-    <script>
-        {
-            const dataValues = {{ chart.values|safe  }};
-            const dataLabels = {{ chart.labels|safe  }};
+    
+    {% for group in charts %}
+        <div class="chart-container">
+            <h1> {{ group.name|safe  }} </h1>
+        {% for chart in group.group %}
+        
+            
+            <canvas id="linechart_{{ chart.id|safe  }}"></canvas>
+        
+        <script>
+            {
+                const dataValues = {{ chart.values|safe  }};
+                const dataLabels = {{ chart.labels|safe  }};
 
-            // Get the canvas element
-            const ctx = document.getElementById('linechart_{{ chart.id|safe  }}').getContext('2d');
+                // add unit
+                const valueName = "{{ chart.value_name|safe }}";
+                const chartIndex = {{ forloop.parentloop.counter0 }};
 
-            // Create the chart
-            const myLineChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: dataLabels,
-                    datasets: [{
-                        label: "{{ chart.value_name|safe }}",
-                        data: dataValues,
-                        color: 'rgba(218, 225, 241, 1)',
-                        backgroundColor: 'rgba(158, 240, 158, 0.2)',
-                        borderColor: 'rgba(158, 240, 158, 1)',
-                        tension: 0.1,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: {
-                                color: 'rgba(218, 225, 241, 1)'
+                // let borderWidth = 2;
+                // let borderDash = [];
+                // if (chartIndex === 0) {
+                //     borderColor = 'rgba(158, 240, 158, 1)'; // green
+                //     backgroundColor = 'rgba(158, 240, 158, 0.2)';
+                //     borderDash = [5, 5]; // Dashed
+                // } else if (chartIndex === 1) {
+                //     borderColor = 'rgba(54, 162, 235, 1)'; // Blue
+                //     backgroundColor = 'rgba(54, 162, 235, 0.2)';
+                //     borderWidth = 3; // Thicker
+                // } else if (chartIndex === 2) {
+                //     borderColor = 'rgba(255, 206, 86, 1)'; // Yellow
+                //     backgroundColor = 'rgba(255, 206, 86, 0.2)';
+                //     borderDash = [10, 5]; // Long dash
+                // } else if (chartIndex === 3) {
+                //     borderColor = 'rgba(75, 192, 192, 1)'; // Teal
+                //     backgroundColor = 'rgba(75, 192, 192, 0.2)';
+                //     borderWidth = 4; // Thickest
+                //     borderDash = [2, 2]; // Dotted
+                // }
+                // // color desgin end
+
+                // Get the canvas element
+                const ctx = document.getElementById('linechart_{{ chart.id|safe  }}').getContext('2d');
+
+                // Create the chart
+                const myLineChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dataLabels,
+                        
+                        datasets: [{
+                            label: "{{ chart.value_name|safe }}",
+                            data: dataValues,
+                            color: 'rgba(218, 225, 241, 1)',
+                            backgroundColor: 'rgba({{ chart_color|safe }}, 0.2)',
+                            borderColor: 'rgba({{ chart_color|safe }}, 1)',
+                            borderWidth: 2,
+                            borderDash:  [2, 2],
+                            tension: 0.1,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    color: 'rgba(218, 225, 241, 1)'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: "{{ chart.node_id|safe  }}",
+                                color: 'rgba(218, 225, 241, 1)',
                             }
                         },
-                        title: {
-                            display: true,
-                            // text: "{{ chart.title|safe  }}",
-                            color: 'rgba(218, 225, 241, 1)',
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                            },
                         }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        },
                     }
-                }
-            });
-        };
-    </script>
+                });
+            //     const unitMap = {
+            //             'temperature': '°C',
+            //             'humidity': '%',
+            //             'sound level': 'dB',
+            //             'light level': 'lux'
+            //         };
+            //         const valueName = '{{ chart.value_name|safe }}';
+            //         myLineChart.data.datasets[0].label = `${valueName} (${unitMap[valueName.toLowerCase()] || ''})`;
+            //         myLineChart.update();
+            };
+        </script>
+        {% endfor %}
+        </div>
     {% endfor %}
     <script>
         function drawLineChart(chart_id, values, labels, value_name) {
@@ -224,5 +268,41 @@
             });
         };
     </script>
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function refreshCharts() {
+            {% for chart in charts %}
+            $.ajax({
+                url: '/json/temp',
+                dataType: 'json',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(data) {
+                    var records = JSON.parse(data);
+                    var filteredRecords = records.filter(record => record.fields.loc === "{{ chart.title|safe }}");
+                    var labels = filteredRecords.map(record => {
+                        var date = new Date(record.fields.date_created);
+                        return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+                    });
+                    var values = filteredRecords.map(record => record.fields.temp);
+                    labels.reverse();
+                    values.reverse();
+                    drawLineChart('linechart_{{ chart.id|safe }}', values, labels, "{{ chart.value_name|safe }}");
+                },
+                error: function(xhr, status, error) {
+                    console.error('获取数据失败:', status, error);
+                },
+                complete: function() {
+                    setTimeout(refreshCharts, 5000);
+                }
+            });
+            {% endfor %}
+        }
+
+        $(document).ready(function() {
+            setTimeout(refreshCharts, 5000);
+        });
+    </script> -->
 </body>
 </html>

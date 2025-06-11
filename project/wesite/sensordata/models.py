@@ -18,7 +18,9 @@ class VenueEvent(models.Model):
     begin = models.DateTimeField()
     end = models.DateTimeField()
     title = models.TextField()
-    description = models.TextField()
+    # description = models.TextField()
+    event = models.TextField()
+    instructor = models.TextField()
 
     def __str__(self):
         return 'data #{}'.format(self.id)

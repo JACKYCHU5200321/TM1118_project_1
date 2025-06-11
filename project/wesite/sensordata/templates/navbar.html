@@ -326,7 +326,7 @@
     }
 
     /* Media queries */
-    @media (min-width: 768px) {
+    @media (min-width: 1600px) {
         .hamburger {
             display: none;
         }
@@ -368,6 +368,7 @@
             font-size: 1.5rem;
         }
     }
+    
 </style>
 
 <nav class="nav-container">
@@ -387,8 +388,12 @@
             <span></span>
             <span></span>
         </div>
+        
         <div class="nav-menu" id="nav-menu">
-            <a href="/temp/" class="menu-item">Temperature</a>
+            <a href="/stat/temp/" class="menu-item">Temperature</a>
+            <a href="/stat/hum/" class="menu-item">Humidity</a>
+            <a href="/stat/snd/" class="menu-item">Sound Level</a>
+            <a href="/stat/light/" class="menu-item">Light Level</a>
             <a href="/query/" class="menu-item">Query</a>
             <a href="/list/" class="menu-item">Record List</a>
             <a href="/admin/" class="menu-item">Admin</a>
