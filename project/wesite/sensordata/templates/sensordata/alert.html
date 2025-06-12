@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alert list</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Arial:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and base styles */
+        :root {
+            --cetacean-blue: #000F2B;
+            --space-cadet: #1B264D;
+            --rainbow-indigo: #263B61;
+            --blue-sapphire: #13576E;
+            --raisin-black: #232323;
+            --pfont: #DAE1F1;
+            --cellc: #263B61;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #131925;
+            color: var(--pfont);
+            min-height: 100vh;
+            padding: 20px;
+            padding-top: 84px;
+        }
+
+        /* Hamburger menu styles */
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        .hamburger:hover {
+            transform: scale(1.15);
+        }
+
+        .hamburger span {
+            width: 32px;
+            height: 4px;
+            background: var(--pfont);
+            margin: 3px 0;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        /* Navigation menu styles */
+        .nav-menu {
+            display: none;
+            position: absolute;
+            top: 90px;
+            right: 2rem;
+            background: rgba(27, 38, 77, 0.9);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px var(--raisin-black);
+            z-index: 90;
+            border: 1px solid rgba(218, 225, 241, 0.1);
+        }
+
+        .nav-menu.active {
+            display: block;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 0.8rem 1.5rem;
+            color: var(--pfont);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item:hover {
+            background: rgba(38, 59, 97, 0.3);
+            color: var(--pfont);
+            transform: translateX(6px);
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--rainbow-indigo), var(--blue-sapphire));
+            opacity: 0.2;
+            transition: left 0.3s ease;
+        }
+
+        .menu-item:hover::before {
+            left: 0;
+        }
+
+        /* Table and content styles */
+        .chart-container {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        .schedule-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--pfont);
+            background-color: var(--cellc);
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--space-cadet);
+            position: sticky;
+            top: 64px;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(var(--pfont), 0.1);
+        }
+
+        tr:hover {
+            background-color: rgba(var(--rainbow-indigo), 0.2);
+        }
+
+        .time-column {
+            width: 120px;
+            font-weight: bold;
+        }
+
+        .event {
+            background-color: rgba(var(--blue-sapphire), 0.2);
+            border-left: 4px solid var(--blue-sapphire);
+        }
+
+        .past-event {
+            background-color: rgba(var(--raisin-black), 0.2);
+            color: rgba(var(--pfont), 0.6);
+        }
+
+        .current-event {
+            background-color: rgba(var(--cetacean-blue), 0.2);
+            border-left: 4px solid var(--rainbow-indigo);
+        }
+
+        h1 {
+            color: var(--pfont);
+            text-align: center;
+        }
+
+        #line-chart {
+            width: 80%;
+            margin: 20px auto;
+            background-color: var(--space-cadet);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        /* Media queries */
+        @media (min-width: 2000px) {
+            .hamburger {
+                display: none;
+            }
+
+            .nav-menu {
+                display: flex !important;
+                position: static;
+                background: none;
+                box-shadow: none;
+                padding: 0;
+                gap: 1.5rem;
+            }
+
+            .menu-item {
+                padding: 0.6rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            th,
+            td {
+                padding: 8px;
+                font-size: 14px;
+            }
+            .time-column {
+                width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    
+    <div class="schedule-container">
+        <h1>Alert Record</h1>
+        <!-- <div class="loading" style="display: none; text-align: center; color: var(--pfont);">loading...</div> -->
+        <table id="scheduleTable">
+            <thead>
+                <tr>
+                    <th>Alert time</th>
+                    <th>Room</th>
+                    <th>Node</th>
+                    <th>Alert type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alert in alerts %}
+                <tr>
+                    <td>{{ alert.time }}</td>
+                    <td>{{ alert.loc }}</td>
+                    <td>{{ alert.node_id }}</td>
+                    <td>{{ alert.type_alert }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -20,8 +20,16 @@
             --pfont: #DAE1F1;
             --cellc: #263B61;
         }
-        .highlight-high {
+        .highlight-avg {
             background-color: rgba(255, 99, 71, 0.3) !important;
+            color: #FFD700 !important;
+        }
+        .highlight-min {
+            background-color: rgba(54, 162, 235, 0.3) !important;
+            color: #FFD700 !important;
+        }
+        .highlight-max {
+            background-color: rgba(255, 206, 86, 0.3) !important;
             color: #FFD700 !important;
         }
     </style>
@@ -57,15 +65,16 @@
             <label style="margin-right: 1rem;">
                 <input type="radio" name="data-view" value="max" onclick="toggleDataView()"> Maximum
             </label>
+            <h4>Data summary of last hour</h4>
         </div>
         <table id="sensor-table" style="width: 100%; border-collapse: collapse; background: rgba(27, 38, 77, 0.7); color: var(--pfont);">
             <thead>
                 <tr>
                     <th rowspan="2" colspan="2" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc);"></th>
-                    <th class="tycol" colspan="3" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc); text-align: center;">temp</th>
-                    <th class="tycol" colspan="3" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc); text-align: center;">hum</th>
-                    <th class="tycol" colspan="3" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc); text-align: center;">snd</th>
-                    <th class="tycol" colspan="3" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc); text-align: center;">light</th>
+                    <th class="tycol" colspan="3" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc); text-align: center;">Temperature(°C)</th>
+                    <th class="tycol" colspan="3" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc); text-align: center;">Humidity(%)</th>
+                    <th class="tycol" colspan="3" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc); text-align: center;">Sound Level(dB)</th>
+                    <th class="tycol" colspan="3" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc); text-align: center;">Light Level(%)</th>
                 </tr>
                 <tr>
                     <th class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc);">avg</th>
@@ -154,7 +163,7 @@
 </section>
 <script>
     const thresholds = {
-        temp: { avg: 25, min: 20, max: 30 },
+        temp: { avg: 25, min: 10, max: 50 },
         hum: { avg: 60, min: 50, max: 70 },
         snd: { avg: 0, min: -50, max: 50 },
         light: { avg: 50, min: 40, max: 60 }
@@ -244,8 +253,25 @@
                                 cell.style.padding = '0.8rem';
                                 const value = parseFloat(values[stat]);
                                 cell.textContent = isNaN(value) ? '-' : value.toFixed(2);
-                                if (!isNaN(value) && value > thresholds[metric][stat]) {
-                                    cell.classList.add('highlight-high');
+                                if (!isNaN(value)) {
+                                    // if (stat === 'avg' && value > thresholds[metric]["min"]) {
+                                    //     cell.classList.add('highlight-min');
+                                    // }
+                                    // if (stat === 'avg' && value < thresholds[metric]["max"]) {
+                                    //     cell.classList.add('highlight-max');
+                                    // }
+                                    // if (stat === 'min' && value < thresholds[metric][stat]) {
+                                    //     cell.classList.add('highlight-min');
+                                    // }
+                                    // if (stat === 'max' && value > thresholds[metric][stat]) {
+                                    //     cell.classList.add('highlight-max');
+                                    // }
+                                    if (value < thresholds[metric]['min']) {
+                                        cell.classList.add('highlight-min');
+                                    }
+                                    if (value > thresholds[metric]['max']) {
+                                        cell.classList.add('highlight-max');
+                                    }
                                 }
                                 row.appendChild(cell);
                             });

@@ -137,50 +137,26 @@
                 const dataValues = {{ chart.values|safe  }};
                 const dataLabels = {{ chart.labels|safe  }};
 
-                // add unit
-                const valueName = "{{ chart.value_name|safe }}";
+                               const valueName = "{{ chart.value_name|safe }}";
 
-                // let unit = "";
-                // if (valueName.toLowerCase().includes("temperature")) {
-                //     unit = "°C";
-                // } else if (valueName.toLowerCase().includes("humidity")) {
-                //     unit = "%";
-                // } else if (valueName.toLowerCase().includes("sound level")) {
-                //     unit = "dB";
-                // } else if (valueName.toLowerCase().includes("light level")) {
-                //     unit = "lux";
-                // }
-
-                // color design start
-                const chartIndex = {{ forloop.parentloop.counter0 }};
+                                                                                                                                                      
+                               const chartIndex = {{ forloop.parentloop.counter0 }};
 
                 let borderWidth = 2;
                 let borderDash = [];
                 if (chartIndex === 0) {
-                    borderColor = 'rgba(158, 240, 158, 1)'; // green
-                    backgroundColor = 'rgba(158, 240, 158, 0.2)';
-                    borderDash = [5, 5]; // Dashed
-                } else if (chartIndex === 1) {
-                    borderColor = 'rgba(54, 162, 235, 1)'; // Blue
-                    backgroundColor = 'rgba(54, 162, 235, 0.2)';
-                    borderWidth = 3; // Thicker
-                } else if (chartIndex === 2) {
-                    borderColor = 'rgba(255, 206, 86, 1)'; // Yellow
-                    backgroundColor = 'rgba(255, 206, 86, 0.2)';
-                    borderDash = [10, 5]; // Long dash
-                } else if (chartIndex === 3) {
-                    borderColor = 'rgba(75, 192, 192, 1)'; // Teal
-                    backgroundColor = 'rgba(75, 192, 192, 0.2)';
-                    borderWidth = 4; // Thickest
-                    borderDash = [2, 2]; // Dotted
-                }
-                // color desgin end
+                    borderColor = 'rgba(158, 240, 158, 1)';                    backgroundColor = 'rgba(158, 240, 158, 0.2)';
+                    borderDash = [5, 5];                } else if (chartIndex === 1) {
+                    borderColor = 'rgba(54, 162, 235, 1)';                    backgroundColor = 'rgba(54, 162, 235, 0.2)';
+                    borderWidth = 3;                } else if (chartIndex === 2) {
+                    borderColor = 'rgba(255, 206, 86, 1)';                    backgroundColor = 'rgba(255, 206, 86, 0.2)';
+                    borderDash = [10, 5];                } else if (chartIndex === 3) {
+                    borderColor = 'rgba(75, 192, 192, 1)';                    backgroundColor = 'rgba(75, 192, 192, 0.2)';
+                    borderWidth = 4;                    borderDash = [2, 2];                }
+               
+                               const ctx = document.getElementById('linechart_{{ chart.id|safe  }}').getContext('2d');
 
-                // Get the canvas element
-                const ctx = document.getElementById('linechart_{{ chart.id|safe  }}').getContext('2d');
-
-                // Create the chart
-                const myLineChart = new Chart(ctx, {
+                               const myLineChart = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: dataLabels,
@@ -219,16 +195,7 @@
                         }
                     }
                 });
-            //     const unitMap = {
-            //             'temperature': '°C',
-            //             'humidity': '%',
-            //             'sound level': 'dB',
-            //             'light level': 'lux'
-            //         };
-            //         const valueName = '{{ chart.value_name|safe }}';
-            //         myLineChart.data.datasets[0].label = `${valueName} (${unitMap[valueName.toLowerCase()] || ''})`;
-            //         myLineChart.update();
-            };
+                                                                                                               };
         </script>
         {% endfor %}
         </div>
@@ -254,17 +221,14 @@
     </div>
 
     <script> 
-        // Sample schedule data - replace with your own data
-        const scheduleData = {{ events_table | safe }};
+               const scheduleData = {{ events_table | safe }};
 
-        // Function to format time
-        function formatTime(dateTime) {
+               function formatTime(dateTime) {
             const options = { hour: '2-digit', minute: '2-digit' };
             return new Date(dateTime).toLocaleTimeString([], options);
         }
 
-        // Function to determine if event is in past, current, or future
-        function getEventStatus(start, end) {
+               function getEventStatus(start, end) {
             const now = new Date();
             const startTime = new Date(start);
             const endTime = new Date(end);
@@ -274,20 +238,17 @@
             return "past";
         }
 
-        // Function to populate the schedule table
-        function populateSchedule() {
+               function populateSchedule() {
             const tbody = document.querySelector('#scheduleTable tbody');
             tbody.innerHTML = '';
 
-            // Sort schedule by start time
-            scheduleData.sort((a, b) => new Date(a.start) - new Date(b.start));
+                       scheduleData.sort((a, b) => new Date(a.start) - new Date(b.start));
 
             scheduleData.forEach(item => {
                 const row = document.createElement('tr');
                 const status = getEventStatus(item.start, item.end);
 
-                // Add class based on event status
-                if (status === "past") row.classList.add('past-event');
+                               if (status === "past") row.classList.add('past-event');
                 if (status === "current") row.classList.add('current-event');
                 if (status === "future") row.classList.add('event');
 
@@ -302,8 +263,7 @@
             });
         }
 
-        // Initialize the schedule when page loads
-        document.addEventListener('DOMContentLoaded', populateSchedule);
+               document.addEventListener('DOMContentLoaded', populateSchedule);
     </script>
     
 </body>

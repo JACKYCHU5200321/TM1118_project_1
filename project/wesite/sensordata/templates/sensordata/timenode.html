@@ -141,7 +141,7 @@
 <body>
     {% include 'navbar.html' %}
 
-    <div class="schedule-container">
+    <!-- <div class="schedule-container">
         <h1>Event Schedule</h1>
         <table id="scheduleTable">
             <thead>
@@ -149,34 +149,116 @@
                     <th>Time</th>
                     <th>Location</th>
                     <th>Event</th>
-                    <!-- <th>Description</th> -->
-                    <!-- <th>Event</th> -->
+
                     <th>Instructor</th>
-
-                    <th>Temperature<br>Average</th>
-                    <th>Temperature<br>Minimum</th>
-                    <th>Temperature<br>Maximun</th>
-
-                    <th>Humidity<br>Average</th>
-                    <th>Humidity<br>Minimum</th>
-                    <th>Humidity<br>Maximun</th>
-
-                    <th>Sound<br>Average</th>
-                    <th>Sound<br>Minimum</th>
-                    <th>Sound<br>Maximun</th>
-
-                    <th>Light<br>Average</th>
-                    <th>Light<br>Minimum</th>
-                    <th>Light<br>Maximun</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Schedule items will be inserted here by JavaScript -->
             </tbody>
         </table>
-    </div>
+    </div> -->
 
-    <script> 
+    {% for group in charts %}
+    <h1> {{ group.name|safe  }} </h1>
+    <div class="chart-group">
+        {% for chart in group.group %}
+            <div class="chart-container">
+                <canvas id="linechart_{{ chart.id|safe  }}"></canvas>
+                <script>
+                    {
+                        const dataValues = {{ chart.values|safe  }};
+                        const dataLabels = {{ chart.labels|safe  }};
+
+                        // add unit
+                        const valueName = "{{ chart.value_name|safe }}";
+
+                        // let unit = "";
+                        // if (valueName.toLowerCase().includes("temperature")) {
+                        //     unit = "°C";
+                        // } else if (valueName.toLowerCase().includes("humidity")) {
+                        //     unit = "%";
+                        // } else if (valueName.toLowerCase().includes("sound level")) {
+                        //     unit = "dB";
+                        // } else if (valueName.toLowerCase().includes("light level")) {
+                        //     unit = "lux";
+                        // }
+
+                        // color design start
+                        const chartIndex = {{ forloop.parentloop.counter0 }};
+
+                        let borderWidth = 2;
+                        let borderDash = [];
+                        if (chartIndex === 0) {
+                            borderColor = 'rgba(158, 240, 158, 1)'; // green
+                            backgroundColor = 'rgba(158, 240, 158, 0.2)';
+                            borderDash = [5, 5]; // Dashed
+                        } else if (chartIndex === 1) {
+                            borderColor = 'rgba(54, 162, 235, 1)'; // Blue
+                            backgroundColor = 'rgba(54, 162, 235, 0.2)';
+                            borderWidth = 3; // Thicker
+                        } else if (chartIndex === 2) {
+                            borderColor = 'rgba(255, 206, 86, 1)'; // Yellow
+                            backgroundColor = 'rgba(255, 206, 86, 0.2)';
+                            borderDash = [10, 5]; // Long dash
+                        } else if (chartIndex === 3) {
+                            borderColor = 'rgba(75, 192, 192, 1)'; // Teal
+                            backgroundColor = 'rgba(75, 192, 192, 0.2)';
+                            borderWidth = 4; // Thickest
+                            borderDash = [2, 2]; // Dotted
+                        }
+                        // color desgin end
+
+                        // Get the canvas element
+                        const ctx = document.getElementById('linechart_{{ chart.id|safe  }}').getContext('2d');
+
+                        // Create the chart
+                        const myLineChart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: dataLabels,
+                                
+                                datasets: [{
+                                    label: "{{ chart.value_name|safe }}",
+                                    data: dataValues,
+                                    color: 'rgba(218, 225, 241, 1)',
+                                    backgroundColor: backgroundColor,
+                                    borderColor: borderColor,
+                                    borderWidth: borderWidth,
+                                    borderDash: borderDash,
+                                    tension: 0.1,
+                                    fill: true
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'top',
+                                        labels: {
+                                            color: 'rgba(218, 225, 241, 1)'
+                                        }
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: "{{ chart.node_id|safe  }}",
+                                        color: 'rgba(218, 225, 241, 1)',
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                    },
+                                }
+                            }
+                        });
+                    };
+                </script>
+            </div>
+        {% endfor %}
+        </div>
+    {% endfor %}
+
+    <!-- <script> 
         // Sample schedule data - replace with your own data
         const scheduleData = {{ events_table | safe }};
 
@@ -219,18 +301,6 @@
                     <td>${item.location}</td>
                     <td>${item.Event}</td>
                     <td>${item.instructor}</td>
-                    <td>${item.temp.avg}</td>
-                    <td>${item.temp.min}</td>
-                    <td>${item.temp.max}</td>
-                    <td>${item.hum.avg}</td>
-                    <td>${item.hum.min}</td>
-                    <td>${item.hum.max}</td>
-                    <td>${item.snd.avg}</td>
-                    <td>${item.snd.min}</td>
-                    <td>${item.snd.max}</td>
-                    <td>${item.light.avg}</td>
-                    <td>${item.light.min}</td>
-                    <td>${item.light.max}</td>
                 `;
 
                 tbody.appendChild(row);
@@ -239,7 +309,7 @@
 
         // Initialize the schedule when page loads
         document.addEventListener('DOMContentLoaded', populateSchedule);
-    </script>
+    </script> -->
     
 </body>
 

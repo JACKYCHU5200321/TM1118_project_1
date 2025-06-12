@@ -1,8 +1,13 @@
 from django import forms
+from django.forms.widgets import SplitDateTimeWidget, TextInput
 
 class QueryForm(forms.Form):
-    start = forms.DateTimeField()
-    end = forms.DateTimeField()
+    start = forms.DateTimeField(widget=TextInput(
+            attrs={'type': 'datetime-local', 'class': 'form-control'}
+        ))
+    end = forms.DateTimeField(widget=TextInput(
+            attrs={'type': 'datetime-local', 'class': 'form-control'}
+        ))
     room = forms.ChoiceField(
         label='Your choice',
         choices=[]

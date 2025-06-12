@@ -24,3 +24,12 @@ class VenueEvent(models.Model):
 
     def __str__(self):
         return 'data #{}'.format(self.id)
+
+class Alert(models.Model):
+    node_id = models.TextField()
+    loc = models.TextField()
+    type_alert = models.TextField()
+    time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return 'alert #{}'.format(self.id)
