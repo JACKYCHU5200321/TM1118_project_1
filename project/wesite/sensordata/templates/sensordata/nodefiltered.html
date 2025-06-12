@@ -240,10 +240,10 @@
             <thead>
                 <tr>
                     <th>Time</th>
-                    <th>Location</th>
                     <th>Event</th>
+                    <th>Location</th>
                     <!-- <th>Description</th> -->
-                    <!-- <th>Event</th> -->
+                    <th>Event</th>
                     <th>Instructor</th>
                 </tr>
             </thead>
@@ -293,9 +293,9 @@
 
                 row.innerHTML = `
                     <td class="time-column">${formatTime(item.start)} - ${formatTime(item.end)}</td>
+                    <td>${item.event}</td>
                     <td>${item.location}</td>
-                    <td>${item.Event}</td>
-                    <td>${item.instructor}</td>
+                    <td>${item.description}</td>
                 `;
 
                 tbody.appendChild(row);

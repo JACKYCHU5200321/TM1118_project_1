@@ -30,21 +30,80 @@
 
         /* Hamburger menu styles */
         .hamburger {
-            display: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        .hamburger:hover {
+            transform: scale(1.15);
+        }
+
+        .hamburger span {
+            width: 32px;
+            height: 4px;
+            background: var(--pfont);
+            margin: 3px 0;
+            border-radius: 4px;
+            transition: all 0.3s ease;
         }
 
         /* Navigation menu styles */
         .nav-menu {
-            display: flex !important;
-            position: static;
-            background: none;
-            box-shadow: none;
-            padding: 0;
-            gap: 1.5rem;
+            display: none;
+            position: absolute;
+            top: 90px;
+            right: 2rem;
+            background: rgba(27, 38, 77, 0.9);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px var(--raisin-black);
+            z-index: 90;
+            border: 1px solid rgba(218, 225, 241, 0.1);
+        }
+
+        .nav-menu.active {
+            display: block;
         }
 
         .menu-item {
-            padding: 0.6rem 1.5rem;
+            display: block;
+            padding: 0.8rem 1.5rem;
+            color: var(--pfont);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item:hover {
+            background: rgba(38, 59, 97, 0.3);
+            color: var(--pfont);
+            transform: translateX(6px);
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--rainbow-indigo), var(--blue-sapphire));
+            opacity: 0.2;
+            transition: left 0.3s ease;
+        }
+
+        .menu-item:hover::before {
+            left: 0;
         }
 
         /* Table and content styles */
@@ -123,7 +182,7 @@
         }
 
         /* Media queries */
-        @media (min-width: 768px) {
+        @media (min-width: 2000px) {
             .hamburger {
                 display: none;
             }
@@ -226,7 +285,7 @@
                 console.error('获取数据失败:', status, error);
             },
             complete: function() {
-                setTimeout(refreshTable, 5000);
+                setTimeout(refreshTable, 30000);
             }
         });
     }

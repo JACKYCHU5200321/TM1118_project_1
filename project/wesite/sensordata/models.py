@@ -6,7 +6,7 @@ class SensorRecord(models.Model):
     loc = models.TextField()
     temp = models.DecimalField(max_digits=3, decimal_places=1)
     hum = models.DecimalField(max_digits=3, decimal_places=1)
-    light = models.IntegerField()
+    light = models.DecimalField(max_digits=5, decimal_places=1)
     snd = models.DecimalField(max_digits=5, decimal_places=1)
     date_created = models.DateTimeField(auto_now_add=True)
 
@@ -17,7 +17,7 @@ class VenueEvent(models.Model):
     loc = models.TextField()
     begin = models.DateTimeField()
     end = models.DateTimeField()
-    title = models.TextField()
+    # title = models.TextField()
     # description = models.TextField()
     event = models.TextField()
     instructor = models.TextField()

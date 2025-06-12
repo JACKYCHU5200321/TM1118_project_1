@@ -3,12 +3,45 @@ from datetime import datetime, timedelta
 import pytz
 from . import sensor_mqtt
 from .models import SensorRecord, VenueEvent
-from .forms import QueryForm
+from .forms import QueryForm, NodeForm
 from django.http import HttpResponseNotFound
 from django.http import JsonResponse
 from django.core import serializers
+from django.db.models import Avg, Min, Max
 
-def recordasjson(request):
+
+
+latestsummary_stat = ['temp', 'hum', 'snd', 'light']
+latestsummary_summ = [Avg, Min, Max]
+
+def json_latestsummary(request):
+    now = datetime.now()
+    hourago = datetime.now() - timedelta(hours=1)
+    records = SensorRecord.objects.filter(date_created__range=(hourago, now))
+    locs = [x["loc"] for x in records.values("loc").distinct()]
+
+    summary = dict()
+    for l in locs:
+        nodes = [x["node_id"] for x in records.filter(loc=l).values("node_id").distinct()]
+        summary[l] = dict()
+        for node in nodes:
+            summary[l][node] = dict()
+            for stat in latestsummary_stat:
+                summary[l][node][stat] = dict()
+                for summ in latestsummary_summ:
+                    avg = records.filter(loc=l, node_id=node).aggregate(Avg(stat))
+                    mn  = records.filter(loc=l, node_id=node).aggregate(Min(stat))
+                    mx  = records.filter(loc=l, node_id=node).aggregate(Max(stat))
+                    summary[l][node][stat]['avg'] = avg["%s__avg" % stat]
+                    summary[l][node][stat]['min'] =  mn["%s__min" % stat]
+                    summary[l][node][stat]['max'] =  mx["%s__max" % stat]
+                    # avg = records.filter(loc=l, node_id=node).aggregate(Avg('temp'))
+                    # print((avg, mn, mx))
+                    # print('%s : %.2f' % (l, avg['temp__avg']))
+
+    return JsonResponse(summary, safe=False)
+
+def json_records(request):
     events = SensorRecord.objects.all()
     data = serializers.serialize('json', events) #Translating Django models into JSON formats
     return JsonResponse(data, safe=False)
@@ -21,12 +54,10 @@ def datajsonSerRes(ty):
     data = serializers.serialize('json', records_temp, fields=('date_created', 'loc', ty))
     return JsonResponse(data, safe=False)
 
-def datajson(request, ty):
+def json_data(request, ty):
     if ty in datajsonPosval:
         return datajsonSerRes(ty)
     return page_not_found(request, "")
-    
-
 
 def page_not_found(request, any):
     # Custom 404 page context
@@ -37,8 +68,16 @@ def page_not_found(request, any):
     return render(request, 'sensordata/404page.html', context, status=404)
 
 def home(request):
+    # events = SensorRecord.objects.all()
+    # data = serializers.serialize('json', events) #Translating Django models into JSON formats
+    # return JsonResponse(data, safe=False)
     return render(request, 'sensordata/homepage.html')
 
+def member(request):
+    # events = SensorRecord.objects.all()
+    # data = serializers.serialize('json', events) #Translating Django models into JSON formats
+    # return JsonResponse(data, safe=False)
+    return render(request, 'sensordata/memberlist.html')
 
 class Linechart:
     def __init__(self, id, labels, values, value_name, title, node_id):
@@ -77,8 +116,6 @@ statchart_theme = {
 }
 
 def page_statchart(request, ty):
-    # records = SensorRecord.objects.all()
-
     if ty not in statchart_theme.keys():
         return
 
@@ -96,10 +133,8 @@ def page_statchart(request, ty):
             g_temp.add(Linechart("%s_%s_temp"  % (node, l), records_time, records_temp,  label, "%s %s" % (l, title), node))
         charts.append(g_temp)
     context = {'chart_color': color, 'charts': charts}
-    return render(request, 'sensordata/list_temp.html', context)
+    return render(request, 'sensordata/statchart.html', context)
     
-
-
 def context_recordNevent(start, end, room):
     uq_tstart, uq_tend = start, end
 
@@ -133,74 +168,92 @@ def context_recordNevent(start, end, room):
         event.begin >= uq_tstart and
         event.end <= uq_tend]
 
-    events_table = str(["{start: \"%s\", end: \"%s\", event: \"%s\", location: \"%s\", description: \"%s\"}" %
+    events_table = str(["{start: \"%s\", end: \"%s\", location: \"%s\", Event: \"%s\", instructor: \"%s\"}" %
             (
                 datetime.strftime(event.begin, "%Y-%m-%dT%H:%M:%S"),
                 datetime.strftime(event.end, "%Y-%m-%dT%H:%M:%S"),
-                event.title, event.loc, event.description
+                event.loc, event.event, event.instructor
             ) for event in between_events]).replace("'", '')
 
     return {'events_table': events_table, 'charts': charts}
-
 
 def page_query(request):
     records = SensorRecord.objects.all()
     loc = list({record.loc for record in records})
     if request.method == 'POST':
         form = QueryForm([(x, x) for x in loc], request.POST)
-
         if form.is_valid():
             room = form.cleaned_data['room']
             start = form.cleaned_data['start']
             end = form.cleaned_data['end']
-
-            # records = SensorRecord.objects.filter(loc=room).values()
-            # events = VenueEvent.objects.filter(loc=room).values()
             context = context_recordNevent(start, end, room)
             return render(request, 'sensordata/timeevent.html', context)
     else:
-        
         form = QueryForm([(x, x) for x in loc])
-        
-        # print(dir(form))
-        # form.fields['room'].choices = [(x, x) for x in loc]
-        # form.fields['room'].widget.choices = [(x, x) for x in loc]
-        # form.room.choices([(x, x) for x in loc])
-    
     return render(request, 'sensordata/query.html', {'form': form})    
 
-
-
-# Create your views here.
-def page_timeevent(request):
-    # uq_loc, uq_tstart, uq_tend = user_query()
-    uq_tstart, uq_tend = datetime.now() - timedelta(hours=1), datetime.now() + timedelta(hours=5)
-
+def page_node(request):
     records = SensorRecord.objects.all()
-    events = VenueEvent.objects.all()    
+    nodes = list({record.node_id for record in records})
+    if request.method == 'POST':
+        form = NodeForm([(x, x) for x in nodes], request.POST)
+        if form.is_valid():
+            node = form.cleaned_data['node']
+            g_temp, g_hum, g_snd, g_light = ChartGroup("Temperature"), ChartGroup("Humidity"), ChartGroup("Sound Level"), ChartGroup("Light Level")
+            loc = [x["loc"] for x in SensorRecord.objects.filter(node_id=node).values("loc").distinct()]
+            for room in loc:
+                records = SensorRecord.objects.filter(loc=room, node_id=node).all()
+                records_temp  = valuesMap2jsArray(records, lambda x: x.temp)
+                records_humi  = valuesMap2jsArray(records, lambda x: x.hum)
+                records_snd   = valuesMap2jsArray(records, lambda x: x.snd)
+                records_light = valuesMap2jsArray(records, lambda x: x.light)
 
-    # all unique location
-    loc = list({record.loc for record in records})
+                records_time = str([datetime.strftime(record.date_created, "%m/%d %H:%M") for record in records])
 
-    # get in between records and events
-    between_records = [record for record in records if
-        record.date_created >= uq_tstart and
-        record.date_created <= uq_tend]
-    between_events = [event for event in events if
-        event.begin >= uq_tstart and
-        event.end <= uq_tend]
+                g_temp.add(Linechart("%s_%s_temp"  % (room, node), records_time, records_temp,  "temperature(°C)", "%s Temperature" % room, room))
+                g_hum.add(Linechart("%s_%s_humi"  % (room, node), records_time, records_humi,  "humdity(%)", "%s Humidity" % room, room))
+                g_snd.add(Linechart("%s_%s_snd"   % (room, node), records_time, records_snd,   "sound level(dB)", "%s Sound Level" % room, room))
+                g_light.add(Linechart("%s_%s_light" % (room, node), records_time, records_light, "light level(%)", "%s Light Level" % room, room))
+                
+            charts = [g_temp, g_hum, g_snd, g_light]
+            context = {'charts': charts}
+            return render(request, 'sensordata/nodechart.html', context)
+    else:
+        form = NodeForm([(x, x) for x in nodes])
+    return render(request, 'sensordata/node.html', {'form': form})    
 
-    records_temp = str([str(record.temp) for record in between_records]).replace("'", '"')
-    records_time = str([datetime.strftime(record.date_created, "%H:%M") for record in between_records])
 
-    events_table = str(["{start: \"%s\", end: \"%s\", event: \"%s\", location: \"%s\", description: \"%s\"}" %
-            (
-                datetime.strftime(event.begin, "%Y-%m-%dT%H:%M:%S"),
-                datetime.strftime(event.end, "%Y-%m-%dT%H:%M:%S"),
-                event.title, event.loc, event.description
-            ) for event in between_events]).replace("'", '')
+
+# # Create your views here.
+# def page_timeevent(request):
+#     # uq_loc, uq_tstart, uq_tend = user_query()
+#     uq_tstart, uq_tend = datetime.now() - timedelta(hours=1), datetime.now() + timedelta(hours=5)
+
+#     records = SensorRecord.objects.all()
+#     events = VenueEvent.objects.all()    
+
+#     # all unique location
+#     loc = list({record.loc for record in records})
+
+#     # get in between records and events
+#     between_records = [record for record in records if
+#         record.date_created >= uq_tstart and
+#         record.date_created <= uq_tend]
+#     between_events = [event for event in events if
+#         event.begin >= uq_tstart and
+#         event.end <= uq_tend]
+
+#     records_temp = str([str(record.temp) for record in between_records]).replace("'", '"')
+#     records_time = str([datetime.strftime(record.date_created, "%H:%M") for record in between_records])
+
+#     events_table = str(["{start: \"%s\", end: \"%s\", location: \"%s\", Event: \"%s\", instructor: \"%s\"}" %
+#             (
+#                 datetime.strftime(event.begin, "%Y-%m-%dT%H:%M:%S"),
+#                 datetime.strftime(event.end, "%Y-%m-%dT%H:%M:%S"),
+#                 event.loc, event.event, event.instructor
+#             ) for event in between_events]).replace("'", '')
         
-    context = {'records_temp': records_temp, 'records_time': records_time, 'events_table': events_table}
+#     context = {'records_temp': records_temp, 'records_time': records_time, 'events_table': events_table}
 
     
-    return render(request, 'sensordata/timeevent.html', context)
+#     return render(request, 'sensordata/timeevent.html', context)

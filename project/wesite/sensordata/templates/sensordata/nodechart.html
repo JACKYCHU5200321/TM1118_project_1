@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time event</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>    <style>
+    <title>Temperature data list</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
         /* Reset and base styles */
         :root {
             --cetacean-blue: #000F2B;
@@ -124,6 +125,7 @@
 <body>
     {% include 'navbar.html' %}
 
+    
     {% for group in charts %}
         <div class="chart-container">
             <h1> {{ group.name|safe  }} </h1>
@@ -139,19 +141,6 @@
 
                 // add unit
                 const valueName = "{{ chart.value_name|safe }}";
-
-                // let unit = "";
-                // if (valueName.toLowerCase().includes("temperature")) {
-                //     unit = "°C";
-                // } else if (valueName.toLowerCase().includes("humidity")) {
-                //     unit = "%";
-                // } else if (valueName.toLowerCase().includes("sound level")) {
-                //     unit = "dB";
-                // } else if (valueName.toLowerCase().includes("light level")) {
-                //     unit = "lux";
-                // }
-
-                // color design start
                 const chartIndex = {{ forloop.parentloop.counter0 }};
 
                 let borderWidth = 2;
@@ -192,7 +181,7 @@
                             backgroundColor: backgroundColor,
                             borderColor: borderColor,
                             borderWidth: borderWidth,
-                            borderDash: borderDash,
+                            borderDash:  borderDash,
                             tension: 0.1,
                             fill: true
                         }]
@@ -233,79 +222,87 @@
         {% endfor %}
         </div>
     {% endfor %}
+    <script>
+        function drawLineChart(chart_id, values, labels, value_name) {
+            // Get the canvas element            
+            const ctx = document.getElementById(chart_id).getContext('2d');
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            const existingChart = Chart.getChart(ctx.canvas);
+            if (existingChart) existingChart.destroy();
 
-    <div class="schedule-container">
-        <h1>Event Schedule</h1>
-        <table id="scheduleTable">
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>Location</th>
-                    <th>Event</th>
-                    <!-- <th>Description</th> -->
-                    <!-- <th>Event</th> -->
-                    <th>Instructor</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Schedule items will be inserted here by JavaScript -->
-            </tbody>
-        </table>
-    </div>
-
-    <script> 
-        // Sample schedule data - replace with your own data
-        const scheduleData = {{ events_table | safe }};
-
-        // Function to format time
-        function formatTime(dateTime) {
-            const options = { hour: '2-digit', minute: '2-digit' };
-            return new Date(dateTime).toLocaleTimeString([], options);
-        }
-
-        // Function to determine if event is in past, current, or future
-        function getEventStatus(start, end) {
-            const now = new Date();
-            const startTime = new Date(start);
-            const endTime = new Date(end);
-
-            if (now < startTime) return "future";
-            if (now >= startTime && now <= endTime) return "current";
-            return "past";
-        }
-
-        // Function to populate the schedule table
-        function populateSchedule() {
-            const tbody = document.querySelector('#scheduleTable tbody');
-            tbody.innerHTML = '';
-
-            // Sort schedule by start time
-            scheduleData.sort((a, b) => new Date(a.start) - new Date(b.start));
-
-            scheduleData.forEach(item => {
-                const row = document.createElement('tr');
-                const status = getEventStatus(item.start, item.end);
-
-                // Add class based on event status
-                if (status === "past") row.classList.add('past-event');
-                if (status === "current") row.classList.add('current-event');
-                if (status === "future") row.classList.add('event');
-
-                row.innerHTML = `
-                    <td class="time-column">${formatTime(item.start)} - ${formatTime(item.end)}</td>
-                    <td>${item.location}</td>
-                    <td>${item.Event}</td>
-                    <td>${item.instructor}</td>
-                `;
-
-                tbody.appendChild(row);
+            const myLineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: value_name,
+                        data: values,
+                        color: 'rgba(218, 225, 241, 1)',
+                        backgroundColor: 'rgba(158, 240, 158, 0.2)',
+                        borderColor: 'rgba(158, 240, 158, 1)',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: 'rgba(218, 225, 241, 1)'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            // text: "{{ chart.title|safe  }}",
+                            color: 'rgba(218, 225, 241, 1)',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        },
+                    }
+                }
             });
+        };
+    </script>
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function refreshCharts() {
+            {% for chart in charts %}
+            $.ajax({
+                url: '/json/temp',
+                dataType: 'json',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(data) {
+                    var records = JSON.parse(data);
+                    var filteredRecords = records.filter(record => record.fields.loc === "{{ chart.title|safe }}");
+                    var labels = filteredRecords.map(record => {
+                        var date = new Date(record.fields.date_created);
+                        return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+                    });
+                    var values = filteredRecords.map(record => record.fields.temp);
+                    labels.reverse();
+                    values.reverse();
+                    drawLineChart('linechart_{{ chart.id|safe }}', values, labels, "{{ chart.value_name|safe }}");
+                },
+                error: function(xhr, status, error) {
+                    console.error('获取数据失败:', status, error);
+                },
+                complete: function() {
+                    setTimeout(refreshCharts, 5000);
+                }
+            });
+            {% endfor %}
         }
 
-        // Initialize the schedule when page loads
-        document.addEventListener('DOMContentLoaded', populateSchedule);
-    </script>
-    
+        $(document).ready(function() {
+            setTimeout(refreshCharts, 5000);
+        });
+    </script> -->
 </body>
-
 </html>
