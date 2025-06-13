@@ -41,10 +41,10 @@
         <div class="description-card">
             <h2>Group 11 Project Overview</h2>
             <p style="text-align: justify">
-                The Group 11 SensorSync web application enables users to monitor sensor data and manage event schedules. 
+                Group 11 SensorSync web application enables users to monitor sensor data and manage event schedules. 
                 Users can query sensor data (temperature, humidity, light, and sound) by date, node ID, location, and data type, then view detailed records in a tabular format. 
                 Interactive line charts visualize data trends for each metric. 
-                The application also displays an event schedule with time, location, and status (past, current, future), accessible via a responsive, dark-themed interface with intuitive navigation.
+                The application also displays an event schedule with time, location, and status (past, current), accessible via a responsive, dark-themed interface with intuitive navigation.
             </p>
         </div>
         <br><br>
@@ -163,10 +163,10 @@
 </section>
 <script>
     const thresholds = {
-        temp: { avg: 25, min: 10, max: 50 },
-        hum: { avg: 60, min: 50, max: 70 },
-        snd: { avg: 0, min: -50, max: 50 },
-        light: { avg: 50, min: 40, max: 60 }
+        temp: { avg: 25, min: 10, max: 40 },
+        hum: { avg: 60, min: 40, max: 60 },
+        snd: { avg: 0, min: 0, max: 80 },
+        light: { avg: 50, min: 5, max: 90 }
     };
     function toggleDataView() {
         const view = document.querySelector('input[name="data-view"]:checked').value;

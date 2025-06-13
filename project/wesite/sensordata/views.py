@@ -330,3 +330,5 @@ def page_node(request):
 
     
 #     return render(request, 'sensordata/timeevent.html', context)
+
+

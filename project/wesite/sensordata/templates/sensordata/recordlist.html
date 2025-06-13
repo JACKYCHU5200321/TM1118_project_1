@@ -218,7 +218,6 @@
     
     <div class="schedule-container">
         <h1>Raw Node Data</h1>
-        <!-- <div class="loading" style="display: none; text-align: center; color: var(--pfont);">loading...</div> -->
         <table id="scheduleTable">
             <thead>
                 <tr>
@@ -244,9 +243,24 @@
                 </tr>
                 {% endfor %}
             </tbody>
+            <div class="loading" style="display: none; text-align: center; color: var(--pfont);">loading...</div>
         </table>
     </div>
-<!-- Refresh -->
+<script>
+    function formatDate(isoDate) {
+        return new Date(isoDate).toLocaleString('zh-HK', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        }).replace(/\//g, '-'); // "2025-06-13 09:32:00"
+    }
+</script>
+
+    <!-- Refresh -->
 <script>
     function refreshTable() {
         $.ajax({
@@ -265,15 +279,16 @@
                     $('#scheduleTable tbody').empty();
                     data.reverse();
                     $.each(data, function(index, record) {
+                        
                         $('#scheduleTable tbody').append(`
                             <tr>
-                                <td>${record.fields.date_created}</td>
+                                <td>${formatDate(record.fields.date_created)}</td>
                                 <td>${record.fields.node_id}</td>
                                 <td>${record.fields.loc}</td>
-                                <td>${record.fields.temp}</td>
-                                <td>${record.fields.hum}</td>
-                                <td>${record.fields.light}</td>
-                                <td>${record.fields.snd}</td>
+                                <td>${record.fields.temp} °C</td>
+                                <td>${record.fields.hum}%</td>
+                                <td>${record.fields.light}% </td>
+                                <td>${record.fields.snd} dB</td>
                             </tr>
                         `);
                     });
@@ -285,12 +300,11 @@
                 console.error('获取数据失败:', status, error);
             },
             complete: function() {
-                setTimeout(refreshTable, 30000);
+                setTimeout(refreshTable, 15000);
             }
         });
     }
     $(document).ready(function() {
-
         refreshTable();
     });
 </script>
