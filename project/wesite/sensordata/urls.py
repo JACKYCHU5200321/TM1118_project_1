@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from . import views
 
 urlpatterns = [
@@ -13,5 +13,5 @@ urlpatterns = [
     path('alert/', views.page_alert),
     path('homepage/', views.home),
     path('memberlist/', views.member),
-    path('<str:any>/', views.page_not_found),
+    re_path(r'^.*$', views.page_not_found),
 ]

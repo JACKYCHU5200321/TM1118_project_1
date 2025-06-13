@@ -254,18 +254,6 @@
                                 const value = parseFloat(values[stat]);
                                 cell.textContent = isNaN(value) ? '-' : value.toFixed(2);
                                 if (!isNaN(value)) {
-                                    // if (stat === 'avg' && value > thresholds[metric]["min"]) {
-                                    //     cell.classList.add('highlight-min');
-                                    // }
-                                    // if (stat === 'avg' && value < thresholds[metric]["max"]) {
-                                    //     cell.classList.add('highlight-max');
-                                    // }
-                                    // if (stat === 'min' && value < thresholds[metric][stat]) {
-                                    //     cell.classList.add('highlight-min');
-                                    // }
-                                    // if (stat === 'max' && value > thresholds[metric][stat]) {
-                                    //     cell.classList.add('highlight-max');
-                                    // }
                                     if (value < thresholds[metric]['min']) {
                                         cell.classList.add('highlight-min');
                                     }

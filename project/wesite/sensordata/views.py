@@ -58,7 +58,7 @@ def json_data(request, ty):
         return datajsonSerRes(ty)
     return page_not_found(request, "")
 
-def page_not_found(request, any):
+def page_not_found(request):
     # Custom 404 page context
     context = {
         'title': '404 - Page Not Found',
