@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time event</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>    <style>
+        /* Reset and base styles */
+        :root {
+            --cetacean-blue: #000F2B;
+            --space-cadet: #1B264D;
+            --rainbow-indigo: #263B61;
+            --blue-sapphire: #13576E;
+            --raisin-black: #232323;
+            --pfont: #DAE1F1;
+            --cellc: #263B61;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        body {
+            background-color: #131925;
+            color: var(--pfont);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Content styles */
+        .chart-container {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        .schedule-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--pfont);
+            background-color: var(--cellc);
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--space-cadet);
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(var(--pfont), 0.1);
+        }
+
+        tr:hover {
+            background-color: rgba(var(--rainbow-indigo), 0.2);
+        }
+
+        .time-column {
+            width: 120px;
+            font-weight: bold;
+        }
+
+        .event {
+            background-color: rgba(var(--blue-sapphire), 0.2);
+            border-left: 4px solid var(--blue-sapphire);
+        }
+
+        .past-event {
+            background-color: rgba(var(--raisin-black), 0.2);
+            color: rgba(var(--pfont), 0.6);
+        }
+
+        .current-event {
+            background-color: rgba(var(--cetacean-blue), 0.2);
+            border-left: 4px solid var(--rainbow-indigo);
+        }
+
+        h1 {
+            color: var(--pfont);
+            text-align: center;
+        }
+
+        #line-chart {
+            width: 80%;
+            margin: 20px auto;
+            background-color: var(--space-cadet);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        /* Media queries */
+        @media (max-width: 600px) {
+            th,
+            td {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .time-column {
+                width: 80px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+
+    {% for group in charts %}
+        <div class="chart-container">
+            <h1> {{ group.name|safe  }} </h1>
+        {% for chart in group.group %}
+        
+            
+            <canvas id="linechart_{{ chart.id|safe  }}"></canvas>
+        
+        <script>
+            {
+                const dataValues = {{ chart.values|safe  }};
+                const dataLabels = {{ chart.labels|safe  }};
+
+                               const valueName = "{{ chart.value_name|safe }}";
+
+                                                                                                                                                      
+                               const chartIndex = {{ forloop.parentloop.counter0 }};
+
+                let borderWidth = 2;
+                let borderDash = [];
+                if (chartIndex === 0) {
+                    borderColor = 'rgba(158, 240, 158, 1)';                    backgroundColor = 'rgba(158, 240, 158, 0.2)';
+                    borderDash = [5, 5];                } else if (chartIndex === 1) {
+                    borderColor = 'rgba(54, 162, 235, 1)';                    backgroundColor = 'rgba(54, 162, 235, 0.2)';
+                    borderWidth = 3;                } else if (chartIndex === 2) {
+                    borderColor = 'rgba(255, 206, 86, 1)';                    backgroundColor = 'rgba(255, 206, 86, 0.2)';
+                    borderDash = [10, 5];                } else if (chartIndex === 3) {
+                    borderColor = 'rgba(75, 192, 192, 1)';                    backgroundColor = 'rgba(75, 192, 192, 0.2)';
+                    borderWidth = 4;                    borderDash = [2, 2];                }
+               
+                               const ctx = document.getElementById('linechart_{{ chart.id|safe  }}').getContext('2d');
+
+                               const myLineChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dataLabels,
+                        
+                        datasets: [{
+                            label: "{{ chart.value_name|safe }}",
+                            data: dataValues,
+                            color: 'rgba(218, 225, 241, 1)',
+                            backgroundColor: backgroundColor,
+                            borderColor: borderColor,
+                            borderWidth: borderWidth,
+                            borderDash: borderDash,
+                            tension: 0.1,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    color: 'rgba(218, 225, 241, 1)'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: "{{ chart.node_id|safe  }}",
+                                color: 'rgba(218, 225, 241, 1)',
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                            },
+                        }
+                    }
+                });
+                                                                                                               };
+        </script>
+        {% endfor %}
+        </div>
+    {% endfor %}
+
+    <div class="schedule-container">
+        <h1>Event Schedule</h1>
+        <table id="scheduleTable">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Event</th>
+                    <th>Location</th>
+                    <!-- <th>Description</th> -->
+                    <th>Event</th>
+                    <th>Instructor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Schedule items will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script> 
+               const scheduleData = {{ events_table | safe }};
+
+               function formatTime(dateTime) {
+            const options = { hour: '2-digit', minute: '2-digit' };
+            return new Date(dateTime).toLocaleTimeString([], options);
+        }
+
+               function getEventStatus(start, end) {
+            const now = new Date();
+            const startTime = new Date(start);
+            const endTime = new Date(end);
+
+            if (now < startTime) return "future";
+            if (now >= startTime && now <= endTime) return "current";
+            return "past";
+        }
+
+               function populateSchedule() {
+            const tbody = document.querySelector('#scheduleTable tbody');
+            tbody.innerHTML = '';
+
+                       scheduleData.sort((a, b) => new Date(a.start) - new Date(b.start));
+
+            scheduleData.forEach(item => {
+                const row = document.createElement('tr');
+                const status = getEventStatus(item.start, item.end);
+
+                               if (status === "past") row.classList.add('past-event');
+                if (status === "current") row.classList.add('current-event');
+                if (status === "future") row.classList.add('event');
+
+                row.innerHTML = `
+                    <td class="time-column">${formatTime(item.start)} - ${formatTime(item.end)}</td>
+                    <td>${item.event}</td>
+                    <td>${item.location}</td>
+                    <td>${item.description}</td>
+                `;
+
+                tbody.appendChild(row);
+            });
+        }
+
+               document.addEventListener('DOMContentLoaded', populateSchedule);
+    </script>
+    
+</body>
+
+</html>

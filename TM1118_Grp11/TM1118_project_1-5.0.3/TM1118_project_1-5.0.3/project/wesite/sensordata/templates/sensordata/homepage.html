@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group 11 Project Homepage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --cetacean-blue: #000F2B;
+            --space-cadet: #1B264D;
+            --rainbow-indigo: #263B61;
+            --blue-sapphire: #13576E;
+            --raisin-black: #232323;
+            --pfont: #DAE1F1;
+            --cellc: #263B61;
+        }
+        .highlight-avg {
+            background-color: rgba(255, 99, 71, 0.3) !important;
+            color: #FFD700 !important;
+        }
+        .highlight-min {
+            background-color: rgba(54, 162, 235, 0.3) !important;
+            color: #FFD700 !important;
+        }
+        .highlight-max {
+            background-color: rgba(255, 206, 86, 0.3) !important;
+            color: #FFD700 !important;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <section class="hero-section">
+        <div class="description-card">
+            <h2>Group 11 Project Overview</h2>
+            <p style="text-align: justify">
+                Group 11 SensorSync web application enables users to monitor sensor data and manage event schedules. 
+                Users can query sensor data (temperature, humidity, light, and sound) by date, node ID, location, and data type, then view detailed records in a tabular format. 
+                Interactive line charts visualize data trends for each metric. 
+                The application also displays an event schedule with time, location, and status (past, current), accessible via a responsive, dark-themed interface with intuitive navigation.
+            </p>
+        </div>
+        <br><br>
+    <!-- </section>
+    <section class="hero-section"> -->
+    <div class="description-card">
+        <h2>Sensor Node Data Summary</h2>
+        <div style="margin-bottom: 1.5rem;">
+            <label style="margin-right: 1rem;">
+                <input type="radio" name="data-view" value="all" checked onclick="toggleDataView()"> All
+            </label>
+            <label style="margin-right: 1rem;">
+                <input type="radio" name="data-view" value="avg" onclick="toggleDataView()"> Average
+            </label>
+            <label style="margin-right: 1rem;">
+                <input type="radio" name="data-view" value="min" onclick="toggleDataView()"> Minimum
+            </label>
+            <label style="margin-right: 1rem;">
+                <input type="radio" name="data-view" value="max" onclick="toggleDataView()"> Maximum
+            </label>
+            <h4>Data summary of last hour</h4>
+        </div>
+        <table id="sensor-table" style="width: 100%; border-collapse: collapse; background: rgba(27, 38, 77, 0.7); color: var(--pfont);">
+            <thead>
+                <tr>
+                    <th rowspan="2" colspan="2" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc);"></th>
+                    <th class="tycol" colspan="3" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc); text-align: center;">Temperature(°C)</th>
+                    <th class="tycol" colspan="3" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc); text-align: center;">Humidity(%)</th>
+                    <th class="tycol" colspan="3" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc); text-align: center;">Sound Level(dB)</th>
+                    <th class="tycol" colspan="3" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc); text-align: center;">Light Level(%)</th>
+                </tr>
+                <tr>
+                    <th class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc);">avg</th>
+                    <th class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc);">min</th>
+                    <th class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc);">max</th>
+                    <th class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc);">avg</th>
+                    <th class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc);">min</th>
+                    <th class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc);">max</th>
+                    <th class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc);">avg</th>
+                    <th class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc);">min</th>
+                    <th class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc);">max</th>
+                    <th class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc);">avg</th>
+                    <th class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc);">min</th>
+                    <th class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc);">max</th>
+                </tr>
+            </thead>
+            <tbody id="sensor-table-body">
+                <!-- Table body will be populated by AJAX -->
+            </tbody>
+            <!-- <tbody>
+                <tr>
+                    <td rowspan="2" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc); text-align: center;">room1</td>
+                    <td style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;">node1</td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;">node2</td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                </tr>
+                <tr>
+                    <td rowspan="2" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; background: var(--cellc); text-align: center;">room2</td>
+                    <td style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;">node3</td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;">node4</td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="avg" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="min" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                    <td class="max" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem;"></td>
+                </tr>
+            </tbody> -->
+        </table>
+    </div>
+</section>
+<script>
+    const thresholds = {
+        temp: { avg: 25, min: 10, max: 40 },
+        hum: { avg: 60, min: 40, max: 60 },
+        snd: { avg: 0, min: 0, max: 80 },
+        light: { avg: 50, min: 5, max: 90 }
+    };
+    function toggleDataView() {
+        const view = document.querySelector('input[name="data-view"]:checked').value;
+        const table = document.getElementById('sensor-table');
+        const avgColumns = table.querySelectorAll('.avg');
+        const minColumns = table.querySelectorAll('.min');
+        const maxColumns = table.querySelectorAll('.max');
+        const tyColumns  = table.querySelectorAll('.tycol');
+
+        if (view === 'all') {
+            avgColumns.forEach(col => col.style.display = '');
+            minColumns.forEach(col => col.style.display = '');
+            maxColumns.forEach(col => col.style.display = '');
+            tyColumns.forEach(col => col.setAttribute('colspan', 3));
+        } else if (view === 'avg') {
+            avgColumns.forEach(col => col.style.display = '');
+            minColumns.forEach(col => col.style.display = 'none');
+            maxColumns.forEach(col => col.style.display = 'none');
+            tyColumns.forEach(col => col.setAttribute('colspan', 1));
+        } else if (view === 'min') {
+            avgColumns.forEach(col => col.style.display = 'none');
+            minColumns.forEach(col => col.style.display = '');
+            maxColumns.forEach(col => col.style.display = 'none');
+            tyColumns.forEach(col => col.setAttribute('colspan', 1));
+        } else if (view === 'max') {
+            avgColumns.forEach(col => col.style.display = 'none');
+            minColumns.forEach(col => col.style.display = 'none');
+            maxColumns.forEach(col => col.style.display = '');
+            tyColumns.forEach(col => col.setAttribute('colspan', 1));
+        }
+    }
+    function updateSensorTable() {
+        // Make AJAX request to fetch sensor data
+        fetch('/json/latest/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const tbody = document.getElementById('sensor-table-body');
+                tbody.innerHTML = ''; // Clear existing content
+
+                // Iterate through rooms in the JSON data
+                for (const room in data) {
+                    const nodes = data[room];
+                    const nodeCount = Object.keys(nodes).length;
+                    let isFirstNode = true;
+
+                    // Iterate through nodes in the room
+                    for (const node in nodes) {
+                        const metrics = nodes[node];
+                        const row = document.createElement('tr');
+
+                        // Add room cell with rowspan for the first node in the room
+                        if (isFirstNode) {
+                            const roomCell = document.createElement('td');
+                            roomCell.setAttribute('rowspan', nodeCount);
+                            roomCell.style.border = '1px solid rgba(218, 225, 241, 0.1)';
+                            roomCell.style.padding = '0.8rem';
+                            roomCell.style.background = 'var(--cellc)';
+                            roomCell.style.textAlign = 'center';
+                            roomCell.textContent = room;
+                            row.appendChild(roomCell);
+                            isFirstNode = false;
+                        }
+
+                        // Add node cell
+                        const nodeCell = document.createElement('td');
+                        nodeCell.style.border = '1px solid rgba(218, 225, 241, 0.1)';
+                        nodeCell.style.padding = '0.8rem';
+                        nodeCell.textContent = node;
+                        row.appendChild(nodeCell);
+
+                        // Add metric cells (temp, hum, snd, light) with avg, min, max
+                        const metricsOrder = ['temp', 'hum', 'snd', 'light'];
+                        metricsOrder.forEach(metric => {
+                            const values = metrics[metric];
+                            ['avg', 'min', 'max'].forEach(stat => {
+                                const cell = document.createElement('td');
+                                cell.className = stat;
+                                cell.style.border = '1px solid rgba(218, 225, 241, 0.1)';
+                                cell.style.padding = '0.8rem';
+                                const value = parseFloat(values[stat]);
+                                cell.textContent = isNaN(value) ? '-' : value.toFixed(2);
+                                if (!isNaN(value)) {
+                                    if (value < thresholds[metric]['min']) {
+                                        cell.classList.add('highlight-min');
+                                    }
+                                    if (value > thresholds[metric]['max']) {
+                                        cell.classList.add('highlight-max');
+                                    }
+                                }
+                                row.appendChild(cell);
+                            });
+                        });
+
+                        tbody.appendChild(row);
+                    }
+                }
+
+                // Reapply the current view filter (e.g., All, Average, Minimum, Maximum)
+                if (typeof toggleDataView === 'function') {
+                    toggleDataView();
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching sensor data:', error);
+                const tbody = document.getElementById('sensor-table-body');
+                tbody.innerHTML = '<tr><td colspan="13" style="border: 1px solid rgba(218, 225, 241, 0.1); padding: 0.8rem; text-align: center;">Failed to load data</td></tr>';
+            });
+    }
+
+    // Call the function on page load
+    setInterval(updateSensorTable, 60000);
+    document.addEventListener('DOMContentLoaded', updateSensorTable);
+    </script>
+</body>
+</html>
+
+
+
+

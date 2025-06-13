@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature data list</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Reset and base styles */
+        :root {
+            --cetacean-blue: #000F2B;
+            --space-cadet: #1B264D;
+            --rainbow-indigo: #263B61;
+            --blue-sapphire: #13576E;
+            --raisin-black: #232323;
+            --pfont: #DAE1F1;
+            --cellc: #263B61;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        body {
+            background-color: #131925;
+            color: var(--pfont);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Content styles */
+        .chart-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 3000px;
+            margin: 0 auto;
+            justify-content: center;
+        }
+
+        .chart-container {
+            flex: 0 0 calc(50% - 10px); /* Two charts per row with gap */
+            max-width: calc(50% - 10px);
+            min-width: 300px; /* Ensure charts don't get too small */
+            background-color: var(--space-cadet);
+            padding: 15px;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .schedule-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--pfont);
+            background-color: var(--cellc);
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--space-cadet);
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(var(--pfont), 0.1);
+        }
+
+        tr:hover {
+            background-color: rgba(var(--rainbow-indigo), 0.2);
+        }
+
+        .time-column {
+            width: 120px;
+            font-weight: bold;
+        }
+
+        .event {
+            background-color: rgba(var(--blue-sapphire), 0.2);
+            border-left: 4px solid var(--blue-sapphire);
+        }
+
+        .past-event {
+            background-color: rgba(var(--raisin-black), 0.2);
+            color: rgba(var(--pfont), 0.6);
+        }
+
+        .current-event {
+            background-color: rgba(var(--cetacean-blue), 0.2);
+            border-left: 4px solid var(--rainbow-indigo);
+        }
+
+        h1 {
+            color: var(--pfont);
+            text-align: center;
+        }
+
+        #line-chart {
+            width: 80%;
+            margin: 20px auto;
+            background-color: var(--space-cadet);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        /* Media queries */
+        @media (max-width: 600px) {
+            .chart-container {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            th,
+            td {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            .time-column {
+                width: 80px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+    {% for group in charts %}
+    <h1> {{ group.name|safe  }} </h1>
+        <div class="chart-group">
+            {% for chart in group.group %}  
+                <div class="chart-container">
+                    <canvas id="linechart_{{ chart.id|safe  }}"></canvas>
+                        <script>
+                            {
+                                const dataValues = {{ chart.values|safe  }};
+                                const dataLabels = {{ chart.labels|safe  }};
+
+                                // add unit
+                                const valueName = "{{ chart.value_name|safe }}";
+                                const chartIndex = {{ forloop.parentloop.counter0 }};
+
+                                // let borderWidth = 2;
+                                // let borderDash = [];
+                                // if (chartIndex === 0) {
+                                //     borderColor = 'rgba(158, 240, 158, 1)'; // green
+                                //     backgroundColor = 'rgba(158, 240, 158, 0.2)';
+                                //     borderDash = [5, 5]; // Dashed
+                                // } else if (chartIndex === 1) {
+                                //     borderColor = 'rgba(54, 162, 235, 1)'; // Blue
+                                //     backgroundColor = 'rgba(54, 162, 235, 0.2)';
+                                //     borderWidth = 3; // Thicker
+                                // } else if (chartIndex === 2) {
+                                //     borderColor = 'rgba(255, 206, 86, 1)'; // Yellow
+                                //     backgroundColor = 'rgba(255, 206, 86, 0.2)';
+                                //     borderDash = [10, 5]; // Long dash
+                                // } else if (chartIndex === 3) {
+                                //     borderColor = 'rgba(75, 192, 192, 1)'; // Teal
+                                //     backgroundColor = 'rgba(75, 192, 192, 0.2)';
+                                //     borderWidth = 4; // Thickest
+                                //     borderDash = [2, 2]; // Dotted
+                                // }
+                                // // color desgin end
+
+                                // Get the canvas element
+                                const ctx = document.getElementById('linechart_{{ chart.id|safe  }}').getContext('2d');
+
+                                // Create the chart
+                                const myLineChart = new Chart(ctx, {
+                                    type: 'line',
+                                    data: {
+                                        labels: dataLabels,
+                                        
+                                        datasets: [{
+                                            label: "{{ chart.value_name|safe }}",
+                                            data: dataValues,
+                                            color: 'rgba(218, 225, 241, 1)',
+                                            backgroundColor: 'rgba({{ chart_color|safe }}, 0.2)',
+                                            borderColor: 'rgba({{ chart_color|safe }}, 1)',
+                                            borderWidth: 2,
+                                            borderDash:  [2, 2],
+                                            tension: 0.1,
+                                            fill: true
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        plugins: {
+                                            legend: {
+                                                position: 'top',
+                                                labels: {
+                                                    color: 'rgba(218, 225, 241, 1)'
+                                                }
+                                            },
+                                            title: {
+                                                display: true,
+                                                text: "{{ chart.node_id|safe  }}",
+                                                color: 'rgba(218, 225, 241, 1)',
+                                            }
+                                        },
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                            },
+                                        }
+                                    }
+                                });
+                            //     const unitMap = {
+                            //             'temperature': '°C',
+                            //             'humidity': '%',
+                            //             'sound level': 'dB',
+                            //             'light level': 'lux'
+                            //         };
+                            //         const valueName = '{{ chart.value_name|safe }}';
+                            //         myLineChart.data.datasets[0].label = `${valueName} (${unitMap[valueName.toLowerCase()] || ''})`;
+                            //         myLineChart.update();
+                            };
+                        </script>
+                </div>
+
+
+                <!-- <canvas id="linechart_{{ chart.id|safe  }}"></canvas>
+                <script>
+                    {
+                        const dataValues = {{ chart.values|safe  }};
+                        const dataLabels = {{ chart.labels|safe  }};
+
+                        // add unit
+                        const valueName = "{{ chart.value_name|safe }}";
+                        const chartIndex = {{ forloop.parentloop.counter0 }};
+
+                        // let borderWidth = 2;
+                        // let borderDash = [];
+                        // if (chartIndex === 0) {
+                        //     borderColor = 'rgba(158, 240, 158, 1)'; // green
+                        //     backgroundColor = 'rgba(158, 240, 158, 0.2)';
+                        //     borderDash = [5, 5]; // Dashed
+                        // } else if (chartIndex === 1) {
+                        //     borderColor = 'rgba(54, 162, 235, 1)'; // Blue
+                        //     backgroundColor = 'rgba(54, 162, 235, 0.2)';
+                        //     borderWidth = 3; // Thicker
+                        // } else if (chartIndex === 2) {
+                        //     borderColor = 'rgba(255, 206, 86, 1)'; // Yellow
+                        //     backgroundColor = 'rgba(255, 206, 86, 0.2)';
+                        //     borderDash = [10, 5]; // Long dash
+                        // } else if (chartIndex === 3) {
+                        //     borderColor = 'rgba(75, 192, 192, 1)'; // Teal
+                        //     backgroundColor = 'rgba(75, 192, 192, 0.2)';
+                        //     borderWidth = 4; // Thickest
+                        //     borderDash = [2, 2]; // Dotted
+                        // }
+                        // // color desgin end
+
+                        // Get the canvas element
+                        const ctx = document.getElementById('linechart_{{ chart.id|safe  }}').getContext('2d');
+
+                        // Create the chart
+                        const myLineChart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: dataLabels,
+                                
+                                datasets: [{
+                                    label: "{{ chart.value_name|safe }}",
+                                    data: dataValues,
+                                    color: 'rgba(218, 225, 241, 1)',
+                                    backgroundColor: 'rgba({{ chart_color|safe }}, 0.2)',
+                                    borderColor: 'rgba({{ chart_color|safe }}, 1)',
+                                    borderWidth: 2,
+                                    borderDash:  [2, 2],
+                                    tension: 0.1,
+                                    fill: true
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        position: 'top',
+                                        labels: {
+                                            color: 'rgba(218, 225, 241, 1)'
+                                        }
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: "{{ chart.node_id|safe  }}",
+                                        color: 'rgba(218, 225, 241, 1)',
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                    },
+                                }
+                            }
+                        });
+                    //     const unitMap = {
+                    //             'temperature': '°C',
+                    //             'humidity': '%',
+                    //             'sound level': 'dB',
+                    //             'light level': 'lux'
+                    //         };
+                    //         const valueName = '{{ chart.value_name|safe }}';
+                    //         myLineChart.data.datasets[0].label = `${valueName} (${unitMap[valueName.toLowerCase()] || ''})`;
+                    //         myLineChart.update();
+                    };
+                </script> -->
+            {% endfor %}
+        </div>
+    {% endfor %}
+    <script>
+        function drawLineChart(chart_id, values, labels, value_name) {
+            // Get the canvas element            
+            const ctx = document.getElementById(chart_id).getContext('2d');
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            const existingChart = Chart.getChart(ctx.canvas);
+            if (existingChart) existingChart.destroy();
+
+            const myLineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: value_name,
+                        data: values,
+                        color: 'rgba(218, 225, 241, 1)',
+                        backgroundColor: 'rgba(158, 240, 158, 0.2)',
+                        borderColor: 'rgba(158, 240, 158, 1)',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: 'rgba(218, 225, 241, 1)'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            // text: "{{ chart.title|safe  }}",
+                            color: 'rgba(218, 225, 241, 1)',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        },
+                    }
+                }
+            });
+        };
+    </script>
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function refreshCharts() {
+            {% for chart in charts %}
+            $.ajax({
+                url: '/json/temp',
+                dataType: 'json',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function(data) {
+                    var records = JSON.parse(data);
+                    var filteredRecords = records.filter(record => record.fields.loc === "{{ chart.title|safe }}");
+                    var labels = filteredRecords.map(record => {
+                        var date = new Date(record.fields.date_created);
+                        return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+                    });
+                    var values = filteredRecords.map(record => record.fields.temp);
+                    labels.reverse();
+                    values.reverse();
+                    drawLineChart('linechart_{{ chart.id|safe }}', values, labels, "{{ chart.value_name|safe }}");
+                },
+                error: function(xhr, status, error) {
+                    console.error('获取数据失败:', status, error);
+                },
+                complete: function() {
+                    setTimeout(refreshCharts, 5000);
+                }
+            });
+            {% endfor %}
+        }
+
+        $(document).ready(function() {
+            setTimeout(refreshCharts, 5000);
+        });
+    </script> -->
+</body>
+</html>
